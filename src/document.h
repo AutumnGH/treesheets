@@ -2080,6 +2080,9 @@ struct Document {
     wxString Key(int uk, int k, bool alt, bool ctrl, bool shift, bool &unprocessed) {
         ClearMultiSel();
         if (uk == WXK_NONE || k < ' ' && k != 0 || k == WXK_DELETE) {
+            // Editing keys are the IME's while it composes, so they can edit or commit the
+            // composition without also changing the cell.
+            if (IMEComposing(canvas)) { return wxEmptyString; }
             switch (k) {
                 case WXK_BACK:  // no menu shortcut available in wxwidgets
                     if (!ctrl) { return Action(A_BACKSPACE); }

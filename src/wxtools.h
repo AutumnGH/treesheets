@@ -703,6 +703,23 @@ static void GetFilesFromUser(wxArrayString &filenames, wxWindow *parent, const w
     if (filedialog.ShowModal() == wxID_OK) { filedialog.GetPaths(filenames); }
 }
 
+#ifdef __WXMSW__
+    // While an IME is composing text it owns the editing keys (Backspace, Enter, Escape, ...),
+    // which it uses to edit, commit or cancel the composition, so the app must not act on them too.
+    static bool IMEComposing(wxWindow *window) {
+        HWND hwnd = window->GetHandle();
+        if (hwnd == 0) return false;
+        if (HIMC himc = ImmGetContext(hwnd)) {
+            auto composing = ImmGetCompositionString(himc, GCS_COMPSTR, nullptr, 0) > 0;
+            ImmReleaseContext(hwnd, himc);
+            return composing;
+        }
+        return false;
+    }
+#else
+    static bool IMEComposing(wxWindow *) { return false; }
+#endif
+
 static void HintIMELocation(Document *doc, int bx, int by, int bh, int stylebits) {
     int scrollx, scrolly;
     doc->canvas->GetViewStart(&scrollx, &scrolly);
