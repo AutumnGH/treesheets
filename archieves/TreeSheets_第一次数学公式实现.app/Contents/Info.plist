@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>CFBundleTypeExtensions</key>
+		<array>
+			<string>cts</string>
+		</array>
+		<key>CFBundleTypeIconFile</key>
+		<string>App</string>
+		<key>CFBundleTypeName</key>
+		<string>TreeSheets</string>
+	</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>TreeSheets</string>
+	<key>CFBundleIconFile</key>
+	<string>App.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.strlen.TreeSheets</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>English</string>
+		<string>German</string>
+		<string>French</string>
+		<string>Chinese</string>
+		<string>Portuguese</string>
+		<string>Russian</string>
+		<string>Korean</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>TreeSheets</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>261103.0514</string>
+	<key>CSResourcesFileMapped</key>
+	<true/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.15</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2025 Wouter van Oortmerssen and Tobias Predel. All rights reserved.</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>

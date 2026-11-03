@@ -29,6 +29,10 @@ wxColour ToWx(tex::color c) {
     return wxColour(tex::color_r(c), tex::color_g(c), tex::color_b(c), tex::color_a(c));
 }
 
+tex::color ToTex(const wxColour &c) {
+    return tex::argb(c.Alpha(), c.Red(), c.Green(), c.Blue());
+}
+
 // The family name a MicroTeX font file registers under is its basename without the extension
 // (cmr10.ttf -> "cmr10").
 wxString FamilyName(const std::string &path) {
@@ -230,40 +234,75 @@ sptr<tex::TextLayout> tex::TextLayout::create(const std::wstring &src, const spt
     return sptrOf<TextLayoutWx>(src, std::static_pointer_cast<FontWx>(font));
 }
 
-bool RenderFormula(const wxString &latex, int textsize, const wxColour &fg, int maxwidth,
-                   RenderedFormula &out) {
-    if (latex.empty()) { return false; }
+bool RenderToBitmap(const tex::TeXRender &render, const wxColour &fg, wxBitmap &bitmap) {
+    auto w = render.getWidth();
+    auto h = render.getHeight();
+    if (w <= 0 || h <= 0) { return false; }
 
+    wxImage image(w, h);
+    image.InitAlpha();
+    memset(image.GetAlpha(), 0, w * h);
+    memset(image.GetData(), 0, w * h * 3);
+    bitmap = wxBitmap(image, 32);
+    wxMemoryDC dc(bitmap);
+    auto *gc = wxGraphicsContext::Create(dc);
+    if (!gc) { return false; }
+    gc->SetAntialiasMode(wxANTIALIAS_DEFAULT);
+    Graphics2DWx g2(gc);
+    const_cast<tex::TeXRender &>(render).setForeground(ToTex(fg));
+    const_cast<tex::TeXRender &>(render).draw(g2, 0, 0);
+    delete gc;
+    return true;
+}
+
+void EnsureInit() {
     static bool initialized = false;
     if (!initialized) {
         tex::LaTeX::init("");
         initialized = true;
     }
+}
 
-    auto color = tex::argb(255, fg.Red(), fg.Green(), fg.Blue());
-    std::unique_ptr<tex::TeXRender> render(
-        tex::LaTeX::parse(latex.ToStdWstring(), maxwidth, textsize, textsize / 2.f, color));
-    if (!render) { return false; }
-
-    out.width = render->getWidth();
-    out.height = render->getHeight();
-    out.depth = render->getDepth();
-    if (out.width <= 0 || out.height <= 0) { return false; }
-
-    wxImage image(out.width, out.height);
-    image.InitAlpha();
-    memset(image.GetAlpha(), 0, out.width * out.height);
-    memset(image.GetData(), 0, out.width * out.height * 3);
-    wxBitmap bitmap(image, 32);
-    {
-        wxMemoryDC dc(bitmap);
-        auto *gc = wxGraphicsContext::Create(dc);
-        if (!gc) { return false; }
-        gc->SetAntialiasMode(wxANTIALIAS_DEFAULT);
-        Graphics2DWx g2(gc);
-        render->draw(g2, 0, 0);
-        delete gc;
+FormulaLayout GetFormulaLayout(const wxString &latex, int textsize) {
+    EnsureInit();
+    struct Cached {
+        std::unique_ptr<tex::TeXRender> render;
+        int width;
+        int height;
+        int depth;
+    };
+    static std::map<wxString, Cached> cache;
+    auto key = wxString::Format(wxT("%d|"), textsize) + latex;
+    auto it = cache.find(key);
+    if (it == cache.end()) {
+        Cached c;
+        c.render.reset(
+            tex::LaTeX::parse(latex.ToStdWstring(), 10000, textsize, textsize / 2.f, tex::black));
+        c.width = c.render ? c.render->getWidth() : 0;
+        c.height = c.render ? c.render->getHeight() : 0;
+        c.depth = c.render ? c.render->getDepth() : 0;
+        it = cache.emplace(key, std::move(c)).first;
     }
-    out.bitmap = bitmap;
-    return true;
+    return {it->second.render.get(), it->second.width, it->second.height, it->second.depth};
+}
+
+void DrawFormula(const FormulaLayout &formula, wxDC &dc, int x, int y, const wxColour &color) {
+    auto *render = static_cast<tex::TeXRender *>(const_cast<void *>(formula.handle));
+    if (render == nullptr) { return; }
+    auto *gc = dc.GetGraphicsContext();
+    if (gc != nullptr) {
+        render->setForeground(ToTex(color));
+        gc->PushState();
+        Graphics2DWx g2(gc);
+        render->draw(g2, x, y);
+        gc->PopState();
+        // PushState/PopState does not save the font (it's a wxWidgets-side member, not part of
+        // the native graphics state), so restore it to the DC's current font and color, else the
+        // next cell would draw in the 1pt math font.
+        gc->SetFont(dc.GetFont(), dc.GetTextForeground());
+        return;
+    }
+    // No graphics context (printing, SVG export): rasterize the same layout.
+    wxBitmap bitmap;
+    if (RenderToBitmap(*render, color, bitmap)) { dc.DrawBitmap(bitmap, x, y, true); }
 }
