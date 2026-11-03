@@ -144,11 +144,24 @@ struct Grid {
         }
     }
 
-    // Unmerges the blocks that a row or column inserted at dx/dy would split.
-    void DissolveSpansCrossing(int dx, int dy, int nxs, int nys) {
+    // Rebuilds which cells a merged block covers from the blocks themselves, after a structural
+    // edit moved cells around.
+    void RebuildSpans() {
+        foreachcell(c) if (c->spanx <= 0 || c->spany <= 0) { c->spanx = c->spany = 1; }
         foreachcell(c) {
-            if (nxs > 0 && c->spanx > 1 && x < dx && x + c->spanx > dx) { Unmerge(x, y); }
-            if (nys > 0 && c->spany > 1 && y < dy && y + c->spany > dy) { Unmerge(x, y); }
+            if (c->spanx <= 1 && c->spany <= 1) { continue; }
+            if (x + c->spanx > xs) { c->spanx = xs - x; }
+            if (y + c->spany > ys) { c->spany = ys - y; }
+            if (c->spanx <= 1 && c->spany <= 1) {
+                c->spanx = c->spany = 1;
+                continue;
+            }
+            loop(yy, c->spany) loop(xx, c->spanx) {
+                if (xx == 0 && yy == 0) { continue; }
+                auto *k = C(x + xx, y + yy).get();
+                k->spanx = -xx;
+                k->spany = -yy;
+            }
         }
     }
 
@@ -848,11 +861,24 @@ struct Grid {
     }
 
     void DeleteCells(int dx, int dy, int nxs, int nys) {
-        if (dx >= 0) {
-            foreachcell(c) if (c->spanx > 1 && x <= dx && dx < x + c->spanx) { Unmerge(x, y); }
-        }
-        if (dy >= 0) {
-            foreachcell(c) if (c->spany > 1 && y <= dy && dy < y + c->spany) { Unmerge(x, y); }
+        // Deleting a row or column inside a merged block shrinks it; deleting the row or column
+        // of its top left cell splits it, as that cell is gone.
+        struct Shrink {
+            Cell *anchor;
+            int w, h;
+        };
+        vector<Shrink> shrink;
+        foreachcell(c) {
+            if (c->spanx <= 1 && c->spany <= 1) { continue; }
+            if ((dx >= 0 && dx == x) || (dy >= 0 && dy == y)) {
+                Unmerge(x, y);
+                continue;
+            }
+            bool inx = dx >= 0 && dx > x && dx < x + c->spanx;
+            bool iny = dy >= 0 && dy > y && dy < y + c->spany;
+            if (inx || iny) {
+                shrink.push_back({c.get(), c->spanx - (inx ? 1 : 0), c->spany - (iny ? 1 : 0)});
+            }
         }
         vector<unique_ptr<Cell>> ncells;
         ncells.reserve((xs + nxs) * (ys + nys));
@@ -862,6 +888,12 @@ struct Grid {
         ys += nys;
         if (dx >= 0) { colwidths.erase(colwidths.begin() + dx); }
         SetOrient();
+        for (auto &s : shrink) {
+            s.anchor->spanx = s.w;
+            s.anchor->spany = s.h;
+            s.anchor->Reset();  // its text wraps in the width of the whole block now
+        }
+        RebuildSpans();
     }
 
     void MultiCellDelete(Document *doc, Selection &sel) {
@@ -934,7 +966,15 @@ struct Grid {
     }
 
     void InsertCells(int dx, int dy, int nxs, int nys, unique_ptr<Cell> nc = nullptr) {
-        DissolveSpansCrossing(dx, dy, nxs, nys);
+        // Inserting inside a merged block grows it, so the cells that appear inside it are
+        // covered by it.
+        vector<pair<Cell *, pair<int, int>>> grow;
+        foreachcell(c) {
+            int addx = 0, addy = 0;
+            if (nxs > 0 && c->spanx > 1 && x < dx && dx < x + c->spanx) { addx = nxs; }
+            if (nys > 0 && c->spany > 1 && y < dy && dy < y + c->spany) { addy = nys; }
+            if (addx || addy) { grow.emplace_back(c.get(), make_pair(addx, addy)); }
+        }
         vector<unique_ptr<Cell>> ocells = std::move(cells);
         int oxs = xs;
         int oys = ys;
@@ -962,6 +1002,12 @@ struct Grid {
             }
         }
         if (dx >= 0 && nxs > 0) { colwidths.insert(colwidths.begin() + dx, nxs, cell->ColWidth()); }
+        for (auto &[a, add] : grow) {
+            a->spanx += add.first;
+            a->spany += add.second;
+            a->Reset();  // its text wraps in the width of the whole block now
+        }
+        RebuildSpans();
     }
 
     void Save(wxDataOutputStream &dos, Cell *ocs) const {
