@@ -130,6 +130,9 @@ add_executable(TreeSheets src/main.cpp ${treesheets_headers})
 target_compile_definitions(TreeSheets PRIVATE "PACKAGE_VERSION=\"${TREESHEETS_VERSION}\"")
 target_link_libraries(TreeSheets PRIVATE wx::aui wx::adv wx::core wx::xml wx::net)
 target_precompile_headers(TreeSheets PRIVATE src/stdafx.h)
+# Compiled separately: its MicroTeX types live in the global `tex` namespace, which the unity build
+# (everything is inside `struct treesheets`) can't reopen.
+target_sources(TreeSheets PRIVATE src/microtex.cpp)
 
 # Compile the images, translations, tutorials and operation references into the executable (see
 # src/wxtools.h)
@@ -261,6 +264,7 @@ endif()
 
 include(cmake/Monocypher.cmake)
 include(cmake/Unibreak.cmake)
+include(cmake/MicroTex.cmake)
 
 ### Optional features
 

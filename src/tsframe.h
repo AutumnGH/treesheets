@@ -847,6 +847,13 @@ struct TSFrame : wxFrame {
         optmenu->AppendCheckItem(A_INNERBORDERCOLOR, _("Colorize inner grid border"),
                                  _("Also colorize the inner grid border"));
         optmenu->Check(A_INNERBORDERCOLOR, sys->innerbordercolor);
+        optmenu->AppendSeparator();
+        optmenu->AppendCheckItem(A_TEXDOLLAR, _("Render TeX formulas in $...$"),
+                                 _("Render LaTeX math written between dollar signs inline"));
+        optmenu->Check(A_TEXDOLLAR, sys->texdollar);
+        optmenu->AppendCheckItem(A_TEXPAREN, _("Render TeX formulas in \\(...\\)"),
+                                 _("Render LaTeX math written between \\( and \\) inline"));
+        optmenu->Check(A_TEXPAREN, sys->texparen);
         optmenu->AppendCheckItem(A_INVERTRENDER, _("Invert in dark mode"),
                                  _("Invert the document in dark mode"));
         optmenu->Check(A_INVERTRENDER, sys->followdarkmode);
@@ -1898,6 +1905,14 @@ struct TSFrame : wxFrame {
                 break;
             case A_INNERBORDERCOLOR:
                 Toggle("innerbordercolor", sys->innerbordercolor);
+                Refresh();
+                break;
+            case A_TEXDOLLAR:
+                Toggle("texdollar", sys->texdollar);
+                Refresh();
+                break;
+            case A_TEXPAREN:
+                Toggle("texparen", sys->texparen);
                 Refresh();
                 break;
             case A_INVERTRENDER:

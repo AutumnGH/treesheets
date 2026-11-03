@@ -123,6 +123,8 @@ extern "C" {
     #include "macos.h"
 #endif
 
+#include "microtex.h"
+
 using namespace std;
 
 #ifdef ENABLE_LOBSTER

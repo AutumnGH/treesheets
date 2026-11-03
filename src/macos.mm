@@ -61,6 +61,26 @@ void ActivateMacApp() {
 #pragma clang diagnostic pop
 }
 
+bool MacRegisterFont(const unsigned char *data, size_t size) {
+  @autoreleasepool {
+    CGDataProviderRef provider = CGDataProviderCreateWithData(nullptr, data, size, nullptr);
+    if (!provider) return false;
+    CGFontRef font = CGFontCreateWithDataProvider(provider);
+    CGDataProviderRelease(provider);
+    if (!font) return false;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // There is no replacement that registers a font from memory: the newer API only takes file
+    // URLs, and the glyph data is compiled into the executable.
+    CFErrorRef error = nullptr;
+    bool ok = CTFontManagerRegisterGraphicsFont(font, &error);
+#pragma clang diagnostic pop
+    if (error) CFRelease(error);
+    CGFontRelease(font);
+    return ok;
+  }
+}
+
 void ShowMacCompletions(WXWidget field) {
   // wxOSX leaves the first suggestion selected, so that Cocoa inserts it, and accepts it on
   // a character that doesn't continue the word, such as "(". Select none, as on the others.

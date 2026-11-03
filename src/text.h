@@ -275,6 +275,98 @@ struct Text {
         return wxIsalnum(c) || wxStrchr(L"_\"\'()", c) != nullptr || wxIspunct(c);
     }
 
+    // A TeX formula in `t`: `start` is the first delimiter char, `end` (inclusive) the last, and
+    // `latex` the content between them.
+    struct FormulaSpan {
+        int start;
+        int end;
+        wxString latex;
+    };
+
+    // The $...$ and \(...\) spans of the whole text, in order, for the delimiters enabled in the
+    // options. An opening delimiter without its closing one is left as plain text.
+    vector<FormulaSpan> FormulaSpans() const {
+        vector<FormulaSpan> spans;
+        if (!sys->texdollar && !sys->texparen) { return spans; }
+        auto l = static_cast<int>(t.Len());
+        for (auto i = 0; i < l;) {
+            auto open = -1;
+            auto close = -1;
+            auto openlen = 0;
+            auto closelen = 0;
+            if (sys->texdollar && t[i] == L'$') {
+                auto j = t.find(L'$', i + 1);
+                if (j != wxString::npos) {
+                    open = i;
+                    close = static_cast<int>(j);
+                    openlen = 1;
+                    closelen = 1;
+                }
+            }
+            if (open < 0 && sys->texparen && t[i] == L'\\' && i + 1 < l && t[i + 1] == L'(') {
+                auto j = t.find(wxString(L"\\)"), i + 2);
+                if (j != wxString::npos) {
+                    open = i;
+                    close = static_cast<int>(j);
+                    openlen = 2;
+                    closelen = 2;
+                }
+            }
+            if (open < 0) { i++; continue; }
+            spans.push_back(
+                {open, close + closelen - 1, t.Mid(open + openlen, close - open - openlen)});
+            i = close + closelen;
+        }
+        return spans;
+    }
+
+    // Whether a line may not end after t[p - 1] because that would split a formula, for `spans`
+    // from FormulaSpans().
+    static bool FormulaBreak(int p, const vector<FormulaSpan> &spans) {
+        for (const auto &s : spans) {
+            if (s.end < p) { continue; }
+            return s.start < p && p <= s.end;
+        }
+        return false;
+    }
+
+    // A cached rendered formula, by its content, size and color. Returns nullptr if it fails to
+    // render, in which case the raw delimiter text is shown instead.
+    static const RenderedFormula *GetFormula(const wxString &latex, int textsize,
+                                             const wxColour &color) {
+        static std::map<wxString, RenderedFormula> cache;
+        auto key = wxString::Format(wxT("%08x|%d|"), static_cast<unsigned>(color.GetRGB()),
+                                    textsize) +
+                   latex;
+        auto it = cache.find(key);
+        if (it == cache.end()) {
+            RenderedFormula r;
+            RenderFormula(latex, textsize, color, 10000, r);
+            it = cache.emplace(key, std::move(r)).first;
+        }
+        return it->second.width > 0 ? &it->second : nullptr;
+    }
+
+    // Calls f(charstart, charlen, isformula, latex) for each segment of [start, start + len) that
+    // is either plain text or a whole formula. `spans` is FormulaSpans().
+    template<typename F>
+    void ForEachInline(int start, int len, const vector<FormulaSpan> &spans, F f) const {
+        auto end = start + len;
+        auto pos = start;
+        for (const auto &s : spans) {
+            if (s.end < pos) { continue; }
+            if (s.start >= end) { break; }
+            if (s.start > pos) {
+                f(pos, s.start - pos, false, wxString());
+                pos = s.start;
+            }
+            auto e = min(s.end + 1, end);
+            f(s.start, e - s.start, true, s.latex);
+            pos = e;
+        }
+        if (pos < end) { f(pos, end - pos, false, wxString()); }
+    }
+
     auto GetLinePart(int &currentpos, int breakpos, int limitpos) const {
         auto startpos = currentpos;
         currentpos = breakpos;
@@ -337,6 +429,8 @@ struct Text {
 
         if (i >= l) { return wxEmptyString; }
 
+        auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans() : vector<FormulaSpan>();
+
         // The end of what fits into maxcolwidth.
         auto end = i;
         for (auto w = 0; end < l && (w += CharWidth(t[end])) <= maxcolwidth; end++) {}
@@ -354,6 +448,7 @@ struct Text {
         auto brks = LineBreaks(i, to);
         for (auto p = end; p > i; p--) {
             if (wxIsspace(t[p - 1])) { continue; }
+            if (!spans.empty() && FormulaBreak(p, spans)) { continue; }
             auto q = p;
             while (q < to && wxIsspace(t[q])) { q++; }
             if (q == to || brks[q - 1 - i] <= LINEBREAK_ALLOWBREAK) { return GetLinePart(i, p, l); }
@@ -504,7 +599,24 @@ struct Text {
     int RangeWidth(Document *doc, DC &dc, int depth, int start, int len) const {
         auto total = 0;
         if (!Rich()) {
-            dc.GetTextExtent(t.Mid(start, len), &total, nullptr);
+            if (!(sys->texdollar || sys->texparen)) {
+                dc.GetTextExtent(t.Mid(start, len), &total, nullptr);
+                return total;
+            }
+            auto spans = FormulaSpans();
+            auto textsize = doc->TextSize(depth, relsize);
+            ForEachInline(start, len, spans,
+                          [&](int s, int l, bool isformula, const wxString &latex) {
+                              if (isformula) {
+                                  if (auto *f = GetFormula(latex, textsize, sys->rubberbandcolor)) {
+                                      total += f->width;
+                                      return;
+                                  }
+                              }
+                              auto w = 0;
+                              dc.GetTextExtent(t.Mid(s, l), &w, nullptr);
+                              total += w;
+                          });
             return total;
         }
         DrawnSegments(start, len, [&](int s, int l, int sb, bool, uint) {
@@ -537,7 +649,30 @@ struct Text {
                 x = RangeWidth(doc, dc, depth, start, static_cast<int>(curl.Len()));
                 y = lm.height;
             } else {
-                dc.GetTextExtent(curl, &x, &y);
+                x = 0;
+                y = 0;
+                if (sys->texdollar || sys->texparen) {
+                    auto spans = FormulaSpans();
+                    auto textsize = doc->TextSize(depth, relsize);
+                    ForEachInline(start, static_cast<int>(curl.Len()), spans,
+                                  [&](int s, int l, bool isformula, const wxString &latex) {
+                                      if (isformula) {
+                                          if (auto *f =
+                                                  GetFormula(latex, textsize,
+                                                             sys->rubberbandcolor)) {
+                                              x += f->width;
+                                              y = max(y, f->height);
+                                              return;
+                                          }
+                                      }
+                                      auto tw = 0, th = 0;
+                                      dc.GetTextExtent(t.Mid(s, l), &tw, &th);
+                                      x += tw;
+                                      y = max(y, th);
+                                  });
+                } else {
+                    dc.GetTextExtent(curl, &x, &y);
+                }
             }
             sx = max(x, sx);
             sy += y;
@@ -853,14 +988,25 @@ struct Text {
 
         auto rich = !cell->tiny && Rich();
         auto lm = rich ? GetLineMetrics(doc, dc, depth) : LineMetrics();
+        auto bd = GetBidi();
         auto h = cell->tiny ? 1 : (rich ? lm.height : doc->CharHeight(dc));
+        // A rendered formula can be taller than a text line (e.g. a fraction), so the cell uses
+        // the tallest such formula's height to leave room for it.
+        if (!cell->tiny && !rich && bd.Empty() && (sys->texdollar || sys->texparen)) {
+            auto spans = FormulaSpans();
+            auto textsize = doc->TextSize(depth, relsize);
+            for (const auto &s : spans) {
+                if (auto *f = GetFormula(s.latex, textsize, sys->rubberbandcolor)) {
+                    h = max(h, f->height);
+                }
+            }
+        }
         leftoffset = h;
         auto i = 0;
         auto lines = 0;
         auto searchfound = IsInSearch();
         auto istag = cell->IsTag(doc);
         auto align = cell->tiny ? TEXTALIGN_LEFT : cell->TextAlign();
-        auto bd = GetBidi();
         std::vector<BidiPiece> pieces;
         auto setforeground = [&](bool hascolor, uint color) {
             if (searchfound) {
@@ -961,12 +1107,37 @@ struct Text {
                 }
                 auto tx = bx + 2 + ixs;
                 if (align != TEXTALIGN_LEFT) {
-                    auto w = 0;
-                    dc.GetTextExtent(curl, &w, nullptr);
-                    tx += AlignOffset(align, w, ixs);
+                    tx += AlignOffset(align, RangeWidth(doc, dc, depth, start,
+                                                        static_cast<int>(curl.Len())),
+                                      ixs);
                 }
                 auto ty = by + lines * h;
-                DrawText(dc, curl, tx + g_margin_extra, ty + g_margin_extra);
+                auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans() : vector<FormulaSpan>();
+                if (spans.empty()) {
+                    DrawText(dc, curl, tx + g_margin_extra, ty + g_margin_extra);
+                } else {
+                    auto textsize = doc->TextSize(depth, relsize);
+                    auto ascent = dc.GetFontMetrics().ascent;
+                    auto formula_color = dc.GetTextForeground();
+                    auto x = tx + g_margin_extra;
+                    ForEachInline(start, static_cast<int>(curl.Len()), spans,
+                                  [&](int s, int l, bool isformula, const wxString &latex) {
+                                      if (isformula) {
+                                          if (auto *f = GetFormula(latex, textsize, formula_color)) {
+                                              auto baseline = f->height - f->depth;
+                                              dc.DrawBitmap(f->bitmap, x,
+                                                            ty + g_margin_extra + ascent - baseline);
+                                              x += f->width;
+                                              return;
+                                          }
+                                      }
+                                      auto str = t.Mid(s, l);
+                                      auto w = 0;
+                                      dc.GetTextExtent(str, &w, nullptr);
+                                      DrawText(dc, str, x, ty + g_margin_extra);
+                                      x += w;
+                                  });
+                }
                 if (searchfound || filtered || istag || cell->textcolor != 0U) {
                     dc.SetTextForeground(sys->rubberbandcolor);
                 }

@@ -13,3 +13,7 @@ void ShowMacCompletions(WXWidget field);
 
 // Brings TreeSheets in front of the active application, which raising a window alone doesn't.
 void ActivateMacApp();
+
+// Registers a font from memory so it can be used by name, for the bundled TeX math fonts (see
+// microtex.cpp). Returns false on failure.
+bool MacRegisterFont(const unsigned char *data, size_t size);

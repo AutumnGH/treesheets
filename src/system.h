@@ -64,6 +64,9 @@ struct System {
     bool shrinktext {true};
     bool showtoolbar {true};
     bool showstatusbar {true};
+    // Which TeX math delimiters are rendered inline in cell text: $...$ and \(...\).
+    bool texdollar {true};
+    bool texparen {true};
     bool followdarkmode {false};
     bool innerbordercolor {false};
     bool restrictview {false};
@@ -142,6 +145,8 @@ struct System {
         globalkeyname = cfg->Read("globalkeyname", globalkeyname);
         cfg->Read("fastrender", &fastrender, fastrender);
         cfg->Read("shrinktext", &shrinktext, shrinktext);
+        cfg->Read("texdollar", &texdollar, texdollar);
+        cfg->Read("texparen", &texparen, texparen);
         cfg->Read("innerbordercolor", &innerbordercolor, innerbordercolor);
         cfg->Read("followdarkmode", &followdarkmode, followdarkmode);
         cfg->Read("minclose", &minclose, minclose);
