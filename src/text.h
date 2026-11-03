@@ -283,24 +283,53 @@ struct Text {
         wxString latex;
     };
 
+    // The editing cursor position if this cell's text is being edited, else -1.
+    int EditCursor() const {
+        auto *frame = sys->frame;
+        auto *tab = frame != nullptr ? frame->GetCurrentTab() : nullptr;
+        auto *doc = tab != nullptr ? tab->doc.get() : nullptr;
+        if (doc == nullptr || !doc->selected.TextEdit() || doc->selected.GetCell() != cell) {
+            return -1;
+        }
+        return doc->selected.cursor;
+    }
+
     // The $...$ and \(...\) spans of the whole text, in order, for the delimiters enabled in the
-    // options. An opening delimiter without its closing one is left as plain text.
-    vector<FormulaSpan> FormulaSpans() const {
+    // options. An opening delimiter without its closing one is left as plain text. A formula
+    // whose span contains `skipcursor` (the editing cursor) shows its raw source, so it is left
+    // out.
+    vector<FormulaSpan> ScanFormulas(int skipcursor) const {
         vector<FormulaSpan> spans;
         if (!sys->texdollar && !sys->texparen) { return spans; }
         auto l = static_cast<int>(t.Len());
         for (auto i = 0; i < l;) {
+            // An escaped dollar sign is a literal one, so it does not open a formula.
+            if (t[i] == L'\\' && i + 1 < l && t[i + 1] == L'$') {
+                i += 2;
+                continue;
+            }
             auto open = -1;
             auto close = -1;
             auto openlen = 0;
             auto closelen = 0;
             if (sys->texdollar && t[i] == L'$') {
-                auto j = t.find(L'$', i + 1);
-                if (j != wxString::npos) {
-                    open = i;
-                    close = static_cast<int>(j);
-                    openlen = 1;
-                    closelen = 1;
+                if (i + 1 < l && t[i + 1] == L'$') {
+                    // $$...$$ is one formula, shown inline like $...$.
+                    auto j = t.find(wxString(L"$$"), i + 2);
+                    if (j != wxString::npos) {
+                        open = i;
+                        close = static_cast<int>(j);
+                        openlen = 2;
+                        closelen = 2;
+                    }
+                } else {
+                    auto j = t.find(L'$', i + 1);
+                    if (j != wxString::npos) {
+                        open = i;
+                        close = static_cast<int>(j);
+                        openlen = 1;
+                        closelen = 1;
+                    }
                 }
             }
             if (open < 0 && sys->texparen && t[i] == L'\\' && i + 1 < l && t[i + 1] == L'(') {
@@ -313,12 +342,35 @@ struct Text {
                 }
             }
             if (open < 0) { i++; continue; }
-            spans.push_back(
-                {open, close + closelen - 1, t.Mid(open + openlen, close - open - openlen)});
+            auto start = open;
+            auto end = close + closelen - 1;
+            // While the cursor is inside this formula, it shows its raw source for editing.
+            if (!(skipcursor > start && skipcursor <= end)) {
+                spans.push_back({start, end, t.Mid(open + openlen, close - open - openlen)});
+            }
             i = close + closelen;
         }
         return spans;
     }
+
+    vector<FormulaSpan> FormulaSpans() const { return ScanFormulas(EditCursor()); }
+
+    // Whether editing the cell changes what it shows, and so its size: a formula expands to its
+    // raw source while the cursor is in it, and a \$ escape loses its backslash when not edited.
+    bool EditChangesSize() const {
+        return !ScanFormulas(-1).empty() || t.Find(wxString(L"\\$")) != wxString::npos;
+    }
+
+    // The text of [start, start + len) as drawn. When not editing, the backslash of a \$ escape
+    // is hidden so it shows as a literal $. A lone backslash (not before a $) is kept.
+    wxString DisplayText(int start, int len) const {
+        auto s = t.Mid(start, len);
+        if (EditCursor() < 0) { s.Replace(wxString(L"\\$"), wxString(L"$")); }
+        return s;
+    }
+
+    // The color a formula that failed to parse is drawn in, so it doesn't fail silently.
+    static wxColour FormulaErrorColor() { return wxColour(0xE0, 0x30, 0x30); }
 
     // Whether a line may not end after t[p - 1] because that would split a formula, for `spans`
     // from FormulaSpans().
@@ -432,12 +484,10 @@ struct Text {
         return brks;
     }
 
-    wxString GetLine(int &i, int maxcolwidth) const {
+    wxString GetLine(int &i, int maxcolwidth, const vector<FormulaSpan> &spans) const {
         auto l = static_cast<int>(t.Len());
 
         if (i >= l) { return wxEmptyString; }
-
-        auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans() : vector<FormulaSpan>();
 
         // The end of what fits into maxcolwidth.
         auto end = i;
@@ -608,13 +658,13 @@ struct Text {
         auto total = 0;
         if (!(sys->texdollar || sys->texparen)) {
             if (!Rich()) {
-                dc.GetTextExtent(t.Mid(start, len), &total, nullptr);
+                dc.GetTextExtent(DisplayText(start, len), &total, nullptr);
                 return total;
             }
             DrawnSegments(start, len, [&](int s, int l, int sb, bool, uint) {
                 doc->PickFont(dc, depth, relsize, sb);
                 auto w = 0;
-                dc.GetTextExtent(t.Mid(s, l), &w, nullptr);
+                dc.GetTextExtent(DisplayText(s, l), &w, nullptr);
                 total += w;
             });
             doc->PickFont(dc, depth, relsize, stylebits);
@@ -650,7 +700,7 @@ struct Text {
                                 }
                                 doc->PickFont(dc, depth, relsize, sb);
                                 auto w = 0;
-                                dc.GetTextExtent(t.Mid(s, l), &w, nullptr);
+                                dc.GetTextExtent(DisplayText(s, l), &w, nullptr);
                                 total += w;
                             });
         doc->PickFont(dc, depth, relsize, stylebits);
@@ -665,17 +715,18 @@ struct Text {
         auto rich = tiny == 0 && Rich();
         auto lm = rich ? GetLineMetrics(doc, dc, depth) : LineMetrics();
         // The tallest formula in the cell: every line is sized to fit it, matching Render().
+        auto spans = tiny == 0 ? FormulaSpans() : vector<FormulaSpan>();
         auto formulah = 0;
-        if (tiny == 0 && (sys->texdollar || sys->texparen)) {
+        if (tiny == 0 && !spans.empty()) {
             auto textsize = doc->TextSize(depth, relsize);
-            for (const auto &s : FormulaSpans()) {
+            for (const auto &s : spans) {
                 auto f = GetFormula(s.latex, textsize);
                 if (f.handle) { formulah = max(formulah, f.height); }
             }
         }
         for (;;) {
             auto start = i;
-            auto curl = GetLine(i, maxcolwidth);
+            auto curl = GetLine(i, maxcolwidth, spans);
             if (curl.IsEmpty()) { break; }
             int x = 0;
             int y = 0;
@@ -784,7 +835,7 @@ struct Text {
         if (p.rtl && p.len == 1) {
             return wxString(wxUniChar(bidi::Mirror(t[p.start].GetValue())));
         }
-        return t.Mid(p.start, p.len);
+        return DisplayText(p.start, p.len);
     }
 
     // Lays out the line [start, start + len) as pieces in visual order from left to right, and
@@ -951,10 +1002,11 @@ struct Text {
 
     // Finds the line the position `pos` is on: returns its start, and its end in `end`.
     int LineOf(int pos, int maxcolwidth, int &end) const {
+        auto spans = FormulaSpans();
         auto i = 0;
         for (;;) {
             auto start = i;
-            auto len = static_cast<int>(GetLine(i, maxcolwidth).Len());
+            auto len = static_cast<int>(GetLine(i, maxcolwidth, spans).Len());
             end = start + len;
             if ((pos >= start && pos <= end) || len == 0) { return start; }
         }
@@ -1042,12 +1094,13 @@ struct Text {
         auto rich = !cell->tiny && Rich();
         auto lm = rich ? GetLineMetrics(doc, dc, depth) : LineMetrics();
         auto bd = GetBidi();
+        auto spans = FormulaSpans();
         auto h = cell->tiny ? 1 : (rich ? lm.height : doc->CharHeight(dc));
         // A rendered formula can be taller than a text line (e.g. a fraction), so the cell uses
         // the tallest such formula's height to leave room for it.
-        if (!cell->tiny && (sys->texdollar || sys->texparen)) {
+        if (!cell->tiny && !spans.empty()) {
             auto textsize = doc->TextSize(depth, relsize);
-            for (const auto &s : FormulaSpans()) {
+            for (const auto &s : spans) {
                 auto f = GetFormula(s.latex, textsize);
                 if (f.handle) { h = max(h, f.height); }
             }
@@ -1087,7 +1140,7 @@ struct Text {
         }
         for (;;) {
             auto start = i;
-            auto curl = GetLine(i, maxcolwidth);
+            auto curl = GetLine(i, maxcolwidth, spans);
             if (curl.IsEmpty()) { break; }
             if (cell->tiny) {
                 if (sys->fastrender) {
@@ -1112,8 +1165,6 @@ struct Text {
                     }
                 }
             } else if (!bd.Empty()) {
-                auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans()
-                                                               : vector<FormulaSpan>();
                 auto w = BidiLine(doc, dc, depth, bd, start, static_cast<int>(curl.Len()), pieces,
                                   spans);
                 auto x = bx + 2 + ixs + g_margin_extra + AlignOffset(align, w, ixs);
@@ -1144,8 +1195,6 @@ struct Text {
                 }
                 auto ty = by + lines * h + g_margin_extra;
                 auto textsize = doc->TextSize(depth, relsize);
-                auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans()
-                                                               : vector<FormulaSpan>();
                 ForEachStyledInline(
                     start, static_cast<int>(curl.Len()), spans,
                     [&](int s, int l, bool isformula, int sb, bool hascolor, uint color,
@@ -1159,9 +1208,18 @@ struct Text {
                                 x += f.width;
                                 return;
                             }
+                            // The formula failed to parse: show its raw source in an error color.
+                            doc->PickFont(dc, depth, relsize, sb);
+                            dc.SetTextForeground(FormulaErrorColor());
+                            auto raw = t.Mid(s, l);
+                            auto w = 0;
+                            dc.GetTextExtent(raw, &w, nullptr);
+                            DrawText(dc, raw, x, ty + lm.ascent - dc.GetFontMetrics().ascent);
+                            x += w;
+                            return;
                         }
                         doc->PickFont(dc, depth, relsize, sb);
-                        auto str = t.Mid(s, l);
+                        auto str = DisplayText(s, l);
                         auto w = 0;
                         dc.GetTextExtent(str, &w, nullptr);
                         DrawText(dc, str, x, ty + lm.ascent - dc.GetFontMetrics().ascent);
@@ -1186,9 +1244,9 @@ struct Text {
                                       ixs);
                 }
                 auto ty = by + lines * h;
-                auto spans = (sys->texdollar || sys->texparen) ? FormulaSpans() : vector<FormulaSpan>();
                 if (spans.empty()) {
-                    DrawText(dc, curl, tx + g_margin_extra, ty + g_margin_extra);
+                    DrawText(dc, DisplayText(start, static_cast<int>(curl.Len())),
+                             tx + g_margin_extra, ty + g_margin_extra);
                 } else {
                     auto textsize = doc->TextSize(depth, relsize);
                     auto ascent = dc.GetFontMetrics().ascent;
@@ -1206,8 +1264,18 @@ struct Text {
                                               x += f.width;
                                               return;
                                           }
+                                          // The formula failed to parse: show its raw source in
+                                          // an error color so it doesn't fail silently.
+                                          dc.SetTextForeground(FormulaErrorColor());
+                                          auto raw = t.Mid(s, l);
+                                          auto w = 0;
+                                          dc.GetTextExtent(raw, &w, nullptr);
+                                          DrawText(dc, raw, x, ty + g_margin_extra);
+                                          x += w;
+                                          dc.SetTextForeground(formula_color);
+                                          return;
                                       }
-                                      auto str = t.Mid(s, l);
+                                      auto str = DisplayText(s, l);
                                       auto w = 0;
                                       dc.GetTextExtent(str, &w, nullptr);
                                       DrawText(dc, str, x, ty + g_margin_extra);
@@ -1285,10 +1353,11 @@ struct Text {
         auto linestart = 0;
         auto line = by / (Rich() ? GetLineMetrics(doc, dc, depth).height : doc->CharHeight(dc));
         wxString ls;
+        auto spans = FormulaSpans();
 
         loop(l, line + 1) {
             linestart = i;
-            ls = GetLine(i, maxcolwidth);
+            ls = GetLine(i, maxcolwidth, spans);
         }
 
         if (auto bd = GetBidi(); !bd.Empty()) {
@@ -1369,10 +1438,11 @@ struct Text {
         auto align = cell->TextAlign();
         auto bd = GetBidi();
         std::vector<BidiPiece> pieces;
+        auto spans = FormulaSpans();
         auto i = 0;
         for (auto l = 0;; l++) {
             auto start = i;
-            auto ls = GetLine(i, maxcolwidth);
+            auto ls = GetLine(i, maxcolwidth, spans);
             auto len = static_cast<int>(ls.Len());
             auto end = start + len;
             int y = cell->GetY(doc) + l * h + 1 + cell->ycenteroff + g_margin_extra;
@@ -1410,6 +1480,22 @@ struct Text {
             }
             if (len == 0) { break; }
         }
+    }
+
+    // Draws the text the input method is composing (e.g. pinyin) at x, y, underlined, and
+    // returns its width. macOS leaves drawing marked text to the application.
+    template<typename DC>
+    int DrawIMEComposition(Document *doc, DC &dc, int x, int y, int h, uint color) const {
+        const auto &composed = IMEComposition(doc->canvas);
+        if (composed.IsEmpty()) { return 0; }
+        dc.SetTextForeground(cell->textcolor != 0U ? wxColour(LightColor(cell->textcolor))
+                                                   : sys->rubberbandcolor);
+        auto w = 0;
+        dc.GetTextExtent(composed, &w, nullptr);
+        DrawText(dc, composed, x, y);
+        dc.SetPen(wxPen(wxColour(LightColor(color))));
+        dc.DrawLine(x, y + h - 3, x + w, y + h - 3);
+        return w;
     }
 
     template<typename DC>
@@ -1470,10 +1556,11 @@ struct Text {
             cc.alignwidth = cell->TextAlignWidth(ixs);
             cc.found = false;
             auto bd = GetBidi();
+            auto spans = FormulaSpans();
             auto i = 0;
             for (auto l = 0;; l++) {
                 auto start = i;
-                auto ls = GetLine(i, maxcolwidth);
+                auto ls = GetLine(i, maxcolwidth, spans);
                 auto len = static_cast<int>(ls.Len());
                 auto end = start + len;
                 if (s.cursor >= start && s.cursor <= end) {
@@ -1496,6 +1583,7 @@ struct Text {
         if (cc.found) {
             int startx = cell->GetX(doc) + cc.localdx;
             int starty = cell->GetY(doc) + cc.line * h + 1 + cell->ycenteroff + g_margin_extra;
+            startx += DrawIMEComposition(doc, dc, startx, starty, h, color);
             DrawRectangle(dc, color, startx, starty, 2, h - 2);
             HintIMELocation(doc, startx, starty, h - 2, stylebits);
         }
@@ -1639,9 +1727,10 @@ struct Text {
         auto i = 0;
         auto cw = cell->ColWidth();
         auto findwhere = home ? s.cursor : s.cursorend;
+        auto spans = FormulaSpans();
         for (;;) {
             auto start = i;
-            auto curl = GetLine(i, cw);
+            auto curl = GetLine(i, cw, spans);
             if (curl.IsEmpty()) { break; }
             auto end = i == t.Len() ? i : i - 1;
             if (findwhere >= start && findwhere <= end) {

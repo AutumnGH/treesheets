@@ -717,28 +717,36 @@ static void GetFilesFromUser(wxArrayString &filenames, wxWindow *parent, const w
         return false;
     }
 #elif defined(__WXOSX_COCOA__)
-    // TreeSheets draws its own text, so it only claims the input method's composition to stop the
+    // TreeSheets draws its own text, so it claims the input method's composition to stop the
     // editing keys (Backspace, Enter, Escape, ...) from also reaching the cell while the IME is
-    // composing. Committed text still arrives as wxEVT_CHAR, as it does without a client.
+    // composing, and to draw the composition itself (macOS leaves that to the application).
+    // Committed text still arrives as wxEVT_CHAR, as it does without a client.
     struct TextInputClient final : wxTextInputClient {
         wxWindow *window;
         wxString marked;
 
         explicit TextInputClient(wxWindow *w) : window(w) {}
 
+        // The composition is drawn by Text::DrawIMEComposition, so a change to it repaints.
+        void Clear() {
+            marked.clear();
+            window->Refresh();
+        }
+
         bool IsTextInputEnabled() const override { return true; }
         bool HasActiveComposition() const override { return !marked.empty(); }
-        void CancelComposition() override { marked.clear(); }
+        void CancelComposition() override { Clear(); }
 
         bool InsertText(const wxString &, long, long) override {
-            marked.clear();
+            Clear();
             return false;  // fall back to the normal wxEVT_CHAR path
         }
         bool SetMarkedText(const wxString &text, long, long, long, long) override {
             marked = text;
+            window->Refresh();
             return true;  // the IME owns the composition, not the cell
         }
-        void UnmarkText() override { marked.clear(); }
+        void UnmarkText() override { Clear(); }
         bool HasMarkedText() const override { return !marked.empty(); }
         bool GetMarkedTextRange(long *start, long *length) const override {
             if (marked.empty()) { return false; }
@@ -761,8 +769,19 @@ static void GetFilesFromUser(wxArrayString &filenames, wxWindow *parent, const w
         auto *client = wxFindTextInputClient(window);
         return client && client->HasMarkedText();
     }
+
+    // The text the input method is composing (e.g. pinyin), empty when it isn't composing.
+    static const wxString &IMEComposition(wxWindow *window) {
+        static const wxString empty;
+        auto *client = wxFindTextInputClient(window);
+        return client != nullptr ? static_cast<TextInputClient *>(client)->marked : empty;
+    }
 #else
     static bool IMEComposing(wxWindow *) { return false; }
+    static const wxString &IMEComposition(wxWindow *) {
+        static const wxString empty;
+        return empty;
+    }
 #endif
 
 static void HintIMELocation(Document *doc, int bx, int by, int bh, int stylebits) {

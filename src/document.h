@@ -1446,12 +1446,15 @@ struct Document {
             return;
         }
         if (!(right && hover.IsInside(selected))) {
-            if (hover.GetCell() != nullptr && selected.GetCell() == hover.GetCell()) {
+            bool entering = hover.GetCell() != nullptr && selected.GetCell() == hover.GetCell();
+            if (entering) {
                 hover.EnterEditOnly(this);
             } else {
                 hover.ExitEdit(this);
             }
             SetSelect(hover);
+            // The cursor may have moved into or out of a formula, changing the cell's size.
+            if (entering) { UpdateLayout(); }
         }
     }
 
@@ -1495,6 +1498,13 @@ struct Document {
             }
             layoutpending = false;
             pendingsel = pendingundoscope = Selection();
+        }
+        // The formula the cursor is inside shows its raw source while editing, which changes the
+        // cell's size, so re-measure it whenever the layout is updated.
+        if (selected.TextEdit()) {
+            if (auto *c = selected.GetCell(); c != nullptr && c->text.EditChangesSize()) {
+                c->ResetLayout();
+            }
         }
         {
             wxInfoDC dc(canvas);

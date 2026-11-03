@@ -270,18 +270,37 @@ FormulaLayout GetFormulaLayout(const wxString &latex, int textsize) {
         int width;
         int height;
         int depth;
+        uint64_t used {0};  // last access, for eviction
     };
+    // A long session with many distinct formulas (times zoom levels) would otherwise grow the
+    // cache without limit, so past the cap the least recently used layouts are dropped.
+    static constexpr size_t maxcached = 512;
     static std::map<wxString, Cached> cache;
+    static uint64_t useclock = 0;
     auto key = wxString::Format(wxT("%d|"), textsize) + latex;
     auto it = cache.find(key);
     if (it == cache.end()) {
         Cached c;
-        c.render.reset(
-            tex::LaTeX::parse(latex.ToStdWstring(), 10000, textsize, textsize / 2.f, tex::black));
+        try {
+            c.render.reset(tex::LaTeX::parse(latex.ToStdWstring(), 10000, textsize,
+                                             textsize / 2.f, tex::black));
+        } catch (const std::exception &) {
+            // Invalid LaTeX: leave the layout empty so the caller shows its raw source as an error.
+        }
         c.width = c.render ? c.render->getWidth() : 0;
         c.height = c.render ? c.render->getHeight() : 0;
         c.depth = c.render ? c.render->getDepth() : 0;
+        c.used = ++useclock;
         it = cache.emplace(key, std::move(c)).first;
+        if (cache.size() > maxcached) {
+            auto oldest = cache.begin();
+            for (auto j = cache.begin(); j != cache.end(); ++j) {
+                if (j->second.used < oldest->second.used) { oldest = j; }
+            }
+            cache.erase(oldest);
+        }
+    } else {
+        it->second.used = ++useclock;
     }
     return {it->second.render.get(), it->second.width, it->second.height, it->second.depth};
 }

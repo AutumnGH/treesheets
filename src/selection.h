@@ -63,6 +63,9 @@ struct Selection {
     void EnterEditOnly(Document *doc) {
         textedit = true;
         SetCursorEdit(doc, true);
+        // Formulas show their raw source while editing, which can change the cell's size.
+        if (auto *c = GetCell()) { c->ResetLayout(); }
+        doc->UpdateLayout();
     }
     void EnterEdit(Document *doc, int cursor = 0, int cursorend = 0) {
         EnterEditOnly(doc);
@@ -73,6 +76,16 @@ struct Selection {
         textedit = false;
         cursor = cursorend = 0;
         SetCursorEdit(doc, false);
+        #ifdef __WXOSX_COCOA__
+            // Drop a composition the input method still has open, so it can't outlive the edit.
+            if (IMEComposing(doc->canvas)) {
+                wxResetTextInput(doc->canvas);
+                doc->canvas->textinput.Clear();
+            }
+        #endif
+        // Formulas show their rendered form again, which can change the cell's size.
+        if (auto *c = GetCell()) { c->ResetLayout(); }
+        doc->UpdateLayout();
     }
 
     bool IsInside(Selection &o) {
@@ -240,6 +253,7 @@ struct Selection {
                                 cursorend = cursor;
                                 auto &text = GetCell()->text;
                                 int maxcolwidth = GetCell()->parent->grid->colwidths[x];
+                                auto spans = text.FormulaSpans();
 
                                 int i = 0;
                                 int laststart = 0;
@@ -247,7 +261,7 @@ struct Selection {
                                 int nextoffset = -1;
                                 for (int l = 0;; l++) {
                                     int start = i;
-                                    auto ls = text.GetLine(i, maxcolwidth);
+                                    auto ls = text.GetLine(i, maxcolwidth, spans);
                                     auto len = static_cast<int>(ls.Len());
                                     int end = start + len;
 
