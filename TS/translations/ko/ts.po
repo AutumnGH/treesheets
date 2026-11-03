@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TreeSheets\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2026-09-28 03:57+0900\n"
 "Last-Translator: VenusGirl <venusgirl@outlook.com>\n"
 "Language-Team: VenusGirl <https://venusgirls.tistory.com/>\n"
@@ -150,6 +150,10 @@ msgstr "링크(&L)..."
 msgid "&Mark as"
 msgstr "다음과 같이 표시(&M)"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "셀 위로 이동"
+
 msgid "&New"
 msgstr "새로 만들기(&N)"
 
@@ -227,6 +231,9 @@ msgstr "저장(&S)"
 
 msgid "&Save as..."
 msgstr "다른 이름으로 저장(&S)..."
+
+msgid "&Scaled Presentation View"
+msgstr "크기 조정된 프레젠테이션 보기(&S)"
 
 msgid "&Script reference"
 msgstr "스크립트 참조(&S)"
@@ -473,6 +480,9 @@ msgstr "이 셀은 Nx1 또는 1xN 격자에서만 이동할 수 있습니다."
 
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr "이 셀은 Nx1 또는 1xN 격자로만 이동할 수 있습니다."
+
+msgid "Can only swap a cell that has text."
+msgstr ""
 
 msgid "Can paste or drop only exactly one file."
 msgstr "파일을 정확히 하나만 붙여넣거나 삭제할 수 있습니다."
@@ -739,6 +749,10 @@ msgstr "기본 이미지 형식"
 msgid "Delete Before"
 msgstr "이전 삭제"
 
+#, fuzzy
+msgid "Delete Grid"
+msgstr "이후 삭제(&D)"
+
 msgid "Delete Word After"
 msgstr "이후 단어 삭제"
 
@@ -758,6 +772,10 @@ msgstr "커서 뒤에 있는 전체 단어를 삭제합니다"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "커서 앞에 있는 전체 단어를 삭제합니다"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "선택한 셀의 격자를 재귀적으로 접습니다"
 
 msgid "Discard Changes"
 msgstr "변경 사항 버리기"
@@ -932,7 +950,9 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "현재 보기의 격자를 탭으로 구분된 텍스트로 내보내며 하위 격자는 건너뜁니다. 스프레드시트에 적합합니다 (하위 격자를 포함하려면 먼저 평탄화 작업 사용)"
+msgstr ""
+"현재 보기의 격자를 탭으로 구분된 텍스트로 내보내며 하위 격자는 건너뜁니다. 스"
+"프레드시트에 적합합니다 (하위 격자를 포함하려면 먼저 평탄화 작업 사용)"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1050,7 +1070,9 @@ msgstr "선택한 셀의 격자를 재귀적으로 접습니다"
 msgid ""
 "Follows the link at the cursor or in the selected cell, or else opens its "
 "text in the browser"
-msgstr "커서 위치나 선택한 셀의 링크를 따라가고, 링크가 없으면 셀의 텍스트를 브라우저에서 엽니다"
+msgstr ""
+"커서 위치나 선택한 셀의 링크를 따라가고, 링크가 없으면 셀의 텍스트를 브라우저"
+"에서 엽니다"
 
 msgid "Font..."
 msgstr "글꼴..."
@@ -1115,7 +1137,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Shift 키를 누른 채 선택하면 선택한 셀만 변경하고 그 안의 셀은 변경하지 않습니다"
+msgstr ""
+"Shift 키를 누른 채 선택하면 선택한 셀만 변경하고 그 안의 셀은 변경하지 않습니"
+"다"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "버블 스타일 렌더링을 사용한 가로 레이아웃"
@@ -1229,7 +1253,9 @@ msgstr ""
 
 msgid ""
 "Let AI agents run Lobster scripts on the open document through a local socket"
-msgstr "AI 에이전트가 로컬 소켓을 통해 열린 문서에서 Lobster 스크립트를 실행할 수 있게 합니다"
+msgstr ""
+"AI 에이전트가 로컬 소켓을 통해 열린 문서에서 Lobster 스크립트를 실행할 수 있"
+"게 합니다"
 
 msgid "Line Style Rendering"
 msgstr "선 스타일 렌더링"
@@ -1249,7 +1275,9 @@ msgstr "링크"
 msgid ""
 "Links the selected text to a web page, a file or the nearest cell with that "
 "text (CTRL+click follows it)"
-msgstr "선택한 텍스트를 웹 페이지, 파일 또는 그 텍스트가 있는 가장 가까운 셀에 연결합니다 (CTRL+클릭으로 따라감)"
+msgstr ""
+"선택한 텍스트를 웹 페이지, 파일 또는 그 텍스트가 있는 가장 가까운 셀에 연결합"
+"니다 (CTRL+클릭으로 따라감)"
 
 msgid "Load an interactive program operation reference in TreeSheets"
 msgstr "TreeSheets에서 대화형 프로그램 작업 참조 불러오기"
@@ -1274,6 +1302,12 @@ msgstr "계층 구조 레이아웃을 더 세로 (기본값) 또는 더 가로�
 
 msgid "Maximum number of launches reached."
 msgstr "최대 실행 횟수에 도달했습니다."
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "닫기 시 최소화"
@@ -1672,6 +1706,18 @@ msgstr "목록에서 스크립트 제거..."
 msgid "Remove template from list..."
 msgstr "목록에서 템플릿 제거..."
 
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
+
 msgid "Render document centered"
 msgstr "문서 가운데로 렌더링"
 
@@ -1862,7 +1908,9 @@ msgstr "문서 배경의 색상 설정"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "커서, 호버 그림자, 검색 결과, 작동의 색상과 색상 드롭다운의 사용자 지정 색상 설정"
+msgstr ""
+"커서, 호버 그림자, 검색 결과, 작동의 색상과 색상 드롭다운의 사용자 지정 색상 "
+"설정"
 
 msgid "Set the default column width for a new grid"
 msgstr "새 격자의 기본 열 너비 설정"
@@ -1962,6 +2010,15 @@ msgstr "오름차순 정렬(&A)"
 msgid "Sort &Descending"
 msgstr "내림차순 정렬(&D)"
 
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
+
 msgid "Start date and time"
 msgstr "시작 날짜 및 시간"
 
@@ -1980,7 +2037,9 @@ msgstr "응용 프로그램 최소화 시작"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "셀 텍스트 앞에 체크박스를 추가하거나, 체크하거나, 제거합니다(체크박스를 클릭하면 체크하거나 해제합니다)"
+msgstr ""
+"셀 텍스트 앞에 체크박스를 추가하거나, 체크하거나, 제거합니다(체크박스를 클릭"
+"하면 체크하거나 해제합니다)"
 
 msgid "Statusbar"
 msgstr "상태 표시줄"
@@ -2092,9 +2151,6 @@ msgstr "이 작업은 선택한 단일 셀에서만 작동합니다."
 msgid "Toggle &Fullscreen View"
 msgstr "전체 화면 보기 전환(&F)"
 
-msgid "&Scaled Presentation View"
-msgstr "크기 조정된 프레젠테이션 보기(&S)"
-
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "접기 전환 (Ctrl+더블 클릭)"
 
@@ -2198,6 +2254,13 @@ msgstr "모두 펴기 (Ctrl+SHIFT+더블 클릭)"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "선택한 셀의 격자를 재귀적으로 펼칩니다"
+
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "가운데 (CTRL+SHIFT+E)"
 
 msgid "Uses"
 msgstr "사용"
@@ -2318,6 +2381,10 @@ msgstr "크기 조정할 항목 없음"
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr "복사된 셀의 색상과 스타일만 설정하고 텍스트를 보관합니다"
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "셀 텍스트 모드에서만 작동합니다"
+
 msgid "only works in cell text mode"
 msgstr "셀 텍스트 모드에서만 작동합니다"
 
@@ -2329,3 +2396,7 @@ msgstr "변경 사항을 한 번에 한 단계씩 되돌리기"
 
 msgid "scale:"
 msgstr "비율:"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "선택을 시작으로 확장"

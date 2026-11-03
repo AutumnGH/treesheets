@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2023-11-11 22:26+0100\n"
 "Last-Translator: Tobias Predel <tobias.predel@gmail.com>\n"
 "Language-Team: French <LL@li.org>\n"
@@ -150,6 +150,10 @@ msgstr "&Lien..."
 msgid "&Mark as"
 msgstr "&Marquer comme"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "Déplacement cellule vers le haut"
+
 msgid "&New"
 msgstr "&Nouveau"
 
@@ -227,6 +231,9 @@ msgstr "&Enregister"
 
 msgid "&Save as..."
 msgstr "Enregistrer &sous..."
+
+msgid "&Scaled Presentation View"
+msgstr "Affichage optimal"
 
 msgid "&Script reference"
 msgstr "Référence des &scripts"
@@ -481,6 +488,9 @@ msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr ""
 "Vous pouvez déplacer cette cellule seulement dans une grille Nx1 ou 1xN."
 
+msgid "Can only swap a cell that has text."
+msgstr ""
+
 msgid "Can paste or drop only exactly one file."
 msgstr "Vous ne pouvez coller ou déposer qu'un seul fichier à la fois."
 
@@ -734,7 +744,8 @@ msgid "Decrease column width (ALT+mousewheel)"
 msgstr "Diminuer la largeur de colonne (ALT+molette)"
 
 msgid "Decrease column width (no sub grids, CTRL+ALT+mousewheel)"
-msgstr "Diminuer la largeur de colonne (sous-grilles exclues, CTRL+ALT+molette)"
+msgstr ""
+"Diminuer la largeur de colonne (sous-grilles exclues, CTRL+ALT+molette)"
 
 msgid "Decrease text size (no sub grids, CTRL+SHIFT+mousewheel)"
 msgstr "Diminuer la taille du texte (sous-grilles exclues, CTRL+SHIFT+molette)"
@@ -755,6 +766,10 @@ msgstr "Format d'image par défaut"
 
 msgid "Delete Before"
 msgstr "Retour arrière"
+
+#, fuzzy
+msgid "Delete Grid"
+msgstr "&Supprimer"
 
 msgid "Delete Word After"
 msgstr "Supprimer Mot suivant"
@@ -779,6 +794,10 @@ msgstr "Supprime le mot situé après le curseur"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "Supprime le mot situé avant le curseur"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "Réduire la grille des cellules sélectionnées mode récursif"
 
 msgid "Discard Changes"
 msgstr "Supprimer les modifications"
@@ -968,7 +987,10 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "Exporte la grille de la vue actuelle en texte séparé par des tabulations, sans les sous-grilles. Utile pour les feuilles de calcul (utilisez d'abord l'opération Aplanir pour inclure les sous-grilles)"
+msgstr ""
+"Exporte la grille de la vue actuelle en texte séparé par des tabulations, "
+"sans les sous-grilles. Utile pour les feuilles de calcul (utilisez d'abord "
+"l'opération Aplanir pour inclure les sous-grilles)"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1157,7 +1179,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Maintenez Maj en le choisissant pour modifier les cellules sélectionnées, mais pas celles qu'elles contiennent"
+msgstr ""
+"Maintenez Maj en le choisissant pour modifier les cellules sélectionnées, "
+"mais pas celles qu'elles contiennent"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "Disposition horizontale mode Bubble"
@@ -1206,10 +1230,12 @@ msgid "Increase column width (ALT+mousewheel)"
 msgstr "Augmenter la largeur de la colonne (ALT+Molette)"
 
 msgid "Increase column width (no sub grids, CTRL+ALT+mousewheel)"
-msgstr "Augmenter la largeur de la colonne (sous-grilles exclues, CTRL+ALT+molette)"
+msgstr ""
+"Augmenter la largeur de la colonne (sous-grilles exclues, CTRL+ALT+molette)"
 
 msgid "Increase text size (no sub grids, CTRL+SHIFT+mousewheel)"
-msgstr "Augmenter la taille du texte (sous-grilles exclues, CTRL+SHIFT+molette)"
+msgstr ""
+"Augmenter la taille du texte (sous-grilles exclues, CTRL+SHIFT+molette)"
 
 msgid "Indented &Text..."
 msgstr "&Texte indenté..."
@@ -1331,6 +1357,12 @@ msgstr ""
 
 msgid "Maximum number of launches reached."
 msgstr "Nombre maximum de lancements atteint."
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "Réduire à la fermeture"
@@ -1661,10 +1693,13 @@ msgid "Please select the Lobster script to run:"
 msgstr "Veuillez sélectionner le script Lobster à exécuter :"
 
 msgid "Please select the TreeSheets file(s) to add as templates:"
-msgstr "Veuillez sélectionner le ou les fichiers TreeSheets à ajouter comme modèles :"
+msgstr ""
+"Veuillez sélectionner le ou les fichiers TreeSheets à ajouter comme modèles :"
 
 msgid "Please select the TreeSheets file(s) to create documents from:"
-msgstr "Veuillez sélectionner le ou les fichiers TreeSheets à partir desquels créer des documents :"
+msgstr ""
+"Veuillez sélectionner le ou les fichiers TreeSheets à partir desquels créer "
+"des documents :"
 
 msgid "Please select the datetime range."
 msgstr "Veuillez sélectionner l'intervalle de date et heure."
@@ -1744,6 +1779,18 @@ msgstr "Retirer un script de la liste..."
 
 msgid "Remove template from list..."
 msgstr "Retirer un modèle de la liste..."
+
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
 
 msgid "Render document centered"
 msgstr "Centrer le document"
@@ -1946,7 +1993,9 @@ msgstr "Définit la couleur de l'arrière-plan du document"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "Définit les couleurs du curseur, de l'ombre au survol, des résultats de recherche, des opérations et la couleur personnalisée des listes de couleurs"
+msgstr ""
+"Définit les couleurs du curseur, de l'ombre au survol, des résultats de "
+"recherche, des opérations et la couleur personnalisée des listes de couleurs"
 
 msgid "Set the default column width for a new grid"
 msgstr "Définit la largeur de colonne par défaut d'une nouvelle grille"
@@ -2039,13 +2088,23 @@ msgid "Size %s"
 msgstr "Taille %s"
 
 msgid "Some icons are based on vscode-icons by Microsoft (CC BY 4.0):"
-msgstr "Certaines icônes sont basées sur vscode-icons de Microsoft (CC BY 4.0) :"
+msgstr ""
+"Certaines icônes sont basées sur vscode-icons de Microsoft (CC BY 4.0) :"
 
 msgid "Sort &Ascending"
 msgstr "Tri Croiss&ant"
 
 msgid "Sort &Descending"
 msgstr "Tri &Décroissant"
+
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
 
 msgid "Start date and time"
 msgstr "Date et heure de début"
@@ -2065,7 +2124,9 @@ msgstr "Démarre l'application réduite"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "Ajoute une case à cocher au début du texte de la cellule, la coche ou la supprime (un clic dessus la coche ou la décoche)"
+msgstr ""
+"Ajoute une case à cocher au début du texte de la cellule, la coche ou la "
+"supprime (un clic dessus la coche ou la décoche)"
 
 msgid "Statusbar"
 msgstr "Barre d'état"
@@ -2175,9 +2236,6 @@ msgstr ""
 
 msgid "Toggle &Fullscreen View"
 msgstr "Plein Ecran"
-
-msgid "&Scaled Presentation View"
-msgstr "Affichage optimal"
 
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "Développer/Réduire (CTRL+double-clic)"
@@ -2290,6 +2348,13 @@ msgstr "Tout développer (CTRL+SHIFT+double-clic)"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "Développer la grille des cellules sélectionnées mode récursif"
+
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "Centrer (CTRL+SHIFT+e)"
 
 msgid "Uses"
 msgstr "Utilise"
@@ -2411,6 +2476,10 @@ msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr ""
 "définit la couleur et le style de la cellule copiée, et conserve le texte"
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "fonctionne seulement en mode texte"
+
 msgid "only works in cell text mode"
 msgstr "fonctionne seulement en mode texte"
 
@@ -2424,3 +2493,7 @@ msgstr "annule les changements, une étape à la fois"
 
 msgid "scale:"
 msgstr "échelle:"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "Etendre la sélection jusqu'en début de cellule"

@@ -743,7 +743,7 @@ struct Document {
     bool FastRelayoutAfterEdit(const Selection &editedsel,
                                const vector<pair<Cell *, CellGeom>> &oldsizes) {
         Grid *g = editedsel.grid.get();
-        if (g->cell->tiny) { return false; }
+        if (g->cell->tiny || g->hasmerge) { return false; }
         if (g->colmaxcache.size() != static_cast<size_t>(g->xs) ||
             g->rowmaxcache.size() != static_cast<size_t>(g->ys)) {
             return false;
@@ -2089,6 +2089,59 @@ struct Document {
         }
     }
 
+    // Merges the selected cells into one, or splits the merged blocks the selection touches. The
+    // covered cells keep their content, and are only hidden while they are covered.
+    wxString MergeCells(bool unmerge) {
+        if (selected.Thin()) { return NoThin(); }
+        auto *g = selected.grid.get();
+        if (g->cell->drawstyle != DS_GRID || g->tinyborder) {
+            return _("only works in a plain grid");
+        }
+        g->SnapSelection(selected);
+        if (selected.xs > 32767 || selected.ys > 32767) {
+            return _("the selection is too large to merge");
+        }
+        int ax, ay;
+        g->AnchorCoords(selected.x, selected.y, ax, ay);
+        auto *a = g->C(ax, ay).get();
+        if (unmerge) {
+            // A single cell on a merged block stands for the whole block.
+            if (selected.xs * selected.ys <= 1) {
+                if (a->spanx <= 1 && a->spany <= 1) { return wxEmptyString; }
+                selected = Selection(selected.grid, ax, ay, a->spanx, a->spany);
+            }
+            if (!g->SpansIn(selected)) { return wxEmptyString; }
+            g->cell->AddUndo(this, selected, false);
+            g->DissolveSpans(selected);
+        } else {
+            if (selected.xs * selected.ys <= 1) { return wxEmptyString; }  // nothing to merge
+            if (ax == selected.x && ay == selected.y && a->spanx == selected.xs &&
+                a->spany == selected.ys) {
+                return wxEmptyString;  // already one cell
+            }
+            g->cell->AddUndo(this, selected, false);
+            // Any block inside the selection is fully inside it, so splitting them all first
+            // leaves plain cells to merge.
+            g->DissolveSpans(selected);
+            a = g->C(selected.x, selected.y).get();
+            a->spanx = selected.xs;
+            a->spany = selected.ys;
+            loop(yy, selected.ys) loop(xx, selected.xs) {
+                if (xx != 0 || yy != 0) {
+                    auto *c = g->C(selected.x + xx, selected.y + yy).get();
+                    c->spanx = -xx;
+                    c->spany = -yy;
+                }
+            }
+            selected.xs = selected.ys = 1;
+            a->Reset();  // its text wraps in the width of the whole block now
+        }
+        g->cell->ResetLayout();
+        UpdateLayout();
+        canvas->Refresh();
+        return wxEmptyString;
+    }
+
     wxString Key(int uk, int k, bool alt, bool ctrl, bool shift, bool &unprocessed) {
         ClearMultiSel();
         if (uk == WXK_NONE || k < ' ' && k != 0 || k == WXK_DELETE) {
@@ -3329,6 +3382,9 @@ struct Document {
             case A_LS: return layrender(DS_BLOBLINE, true, false, true);
 
             case A_WRAP: return selected.Wrap(this);
+
+            case A_MERGE: return MergeCells(false);
+            case A_UNMERGE: return MergeCells(true);
 
             case A_RESETSIZE:
             case A_RESETWIDTH:

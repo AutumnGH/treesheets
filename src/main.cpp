@@ -6,7 +6,7 @@
     #define TS_AGENT_SERVER 1
 #endif
 
-static const auto TS_VERSION = 31;
+static const auto TS_VERSION = 32;
 static const auto g_grid_margin = 1;
 static const auto g_cell_margin = 2;
 static const auto g_margin_extra = 2;  // TODO, could make this configurable: 0/2/4/6
@@ -190,6 +190,8 @@ enum {
     A_TAGADD,
     A_TAGREMOVE,
     A_WRAP,
+    A_MERGE,
+    A_UNMERGE,
     A_HIFY,
     A_FLATTEN,
     A_BROWSEF,

@@ -46,6 +46,10 @@ struct Cell {
     wxUint8 drawstyle {DS_GRID};
     wxUint8 textalign {TEXTALIGN_AUTO};
     wxUint8 vertalign {VERTALIGN_AUTO};
+    // Merged cells: the top left of a merged block holds its size; a cell covered by it holds the
+    // negated offset to that top left; an unmerged cell is (1, 1). See Grid::Anchor().
+    int16_t spanx {1};
+    int16_t spany {1};
     // Whether a partial undo snapshot that is still pending reuses this cell, see
     // Document::FinishUndo().
     bool reusedbyundo {false};
@@ -300,6 +304,8 @@ struct Cell {
         c->text.cell = c.get();
         c->note = note;
         c->formula = formula;
+        c->spanx = spanx;
+        c->spany = spany;
         if (grid) {
             if (sharegrid) {
                 c->grid = grid;
@@ -531,6 +537,8 @@ struct Cell {
         dos.WriteString(note);
         dos.Write8(textalign);
         dos.Write8(vertalign);
+        dos.Write16(static_cast<wxUint16>(spanx));
+        dos.Write16(static_cast<wxUint16>(spany));
         uint cellflags = this == ocs ? TS_SELECTION_MASK : 0;
         if (HasTextState() || formula) {
             cellflags |= grid ? TS_BOTH : TS_TEXT;
@@ -586,6 +594,10 @@ struct Cell {
         if (sys->versionlastloaded >= 29) {
             c->vertalign = dis.Read8();
             if (c->vertalign > VERTALIGN_BOTTOM) { c->vertalign = VERTALIGN_AUTO; }
+        }
+        if (sys->versionlastloaded >= 32) {
+            c->spanx = static_cast<int16_t>(dis.Read16());
+            c->spany = static_cast<int16_t>(dis.Read16());
         }
         int ts = dis.Read8();
         if ((ts & TS_SELECTION_MASK) != 0) {

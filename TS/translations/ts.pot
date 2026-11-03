@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-01 15:54+0100\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -145,6 +145,9 @@ msgid "&Link..."
 msgstr ""
 
 msgid "&Mark as"
+msgstr ""
+
+msgid "&Merge Cells"
 msgstr ""
 
 msgid "&New"
@@ -1253,6 +1256,12 @@ msgstr ""
 msgid "Maximum number of launches reached."
 msgstr ""
 
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
+
 msgid "Minimize on close"
 msgstr ""
 
@@ -1644,6 +1653,18 @@ msgstr ""
 msgid "Remove template from list..."
 msgstr ""
 
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
+
 msgid "Render document centered"
 msgstr ""
 
@@ -1934,6 +1955,9 @@ msgstr ""
 msgid "Split cell at the cursor"
 msgstr ""
 
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
 msgid "Splits the text into two cells side by side in a subgrid"
 msgstr ""
 
@@ -2163,6 +2187,12 @@ msgstr ""
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr ""
 
+msgid "Unmerge Cells"
+msgstr ""
+
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr ""
+
 msgid "Uses"
 msgstr ""
 
@@ -2277,6 +2307,9 @@ msgstr ""
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr ""
 
+msgid "only works in a plain grid"
+msgstr ""
+
 msgid "only works in cell text mode"
 msgstr ""
 
@@ -2287,4 +2320,7 @@ msgid "revert the changes, one step at a time"
 msgstr ""
 
 msgid "scale:"
+msgstr ""
+
+msgid "the selection is too large to merge"
 msgstr ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: treesheets 3349106752\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2026-08-08 16:44-0300\n"
 "Last-Translator: Georger Araújo <georger underscore br at yahoo dot com dot "
 "br>\n"
@@ -153,6 +153,10 @@ msgstr "&Link..."
 msgid "&Mark as"
 msgstr "&Marcar como"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "Mover Células para Cima"
+
 msgid "&New"
 msgstr "&Novo..."
 
@@ -230,6 +234,9 @@ msgstr "&Salvar"
 
 msgid "&Save as..."
 msgstr "Salvar &como..."
+
+msgid "&Scaled Presentation View"
+msgstr "Visualização de Apresentação em &Escala"
 
 msgid "&Script reference"
 msgstr "Referência de &funções Lobster para scripts"
@@ -479,6 +486,9 @@ msgstr "Só é possível mover essa célula a partir de uma grade Nx1 ou 1xN."
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr "Só é possível mover essa célula para dentro de uma grade Nx1 ou 1xN."
 
+msgid "Can only swap a cell that has text."
+msgstr ""
+
 msgid "Can paste or drop only exactly one file."
 msgstr "Você pode colar ou soltar exatamente um único arquivo."
 
@@ -661,8 +671,8 @@ msgstr "Copia a seleção"
 msgid ""
 "Copy the image of the selected cell to the clipboard, at its original size"
 msgstr ""
-"Copia a imagem da célula selecionada para a área de transferência, no tamanho"
-" original"
+"Copia a imagem da célula selecionada para a área de transferência, no "
+"tamanho original"
 
 msgid "Copy the selection as SVG vector graphics"
 msgstr ""
@@ -694,7 +704,8 @@ msgid "Create a new document"
 msgstr "Cria um novo documento"
 
 msgid "Create a new document from a copy of a TreeSheets file"
-msgstr "Cria um novo documento a partir de uma cópia de um arquivo do TreeSheets"
+msgstr ""
+"Cria um novo documento a partir de uma cópia de um arquivo do TreeSheets"
 
 msgid "Create backup file before document is saved to file"
 msgstr "Cria arquivo de backup antes de salvar o documento"
@@ -752,6 +763,10 @@ msgstr "Formato padrão de imagem"
 msgid "Delete Before"
 msgstr "Excluir Antes"
 
+#, fuzzy
+msgid "Delete Grid"
+msgstr "Excluir Depois"
+
 msgid "Delete Word After"
 msgstr "Excluir Palavra Seguinte"
 
@@ -775,6 +790,10 @@ msgstr "Exclui a palavra depois do cursor"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "Exclui a palavra antes do cursor"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "Dobra recursivamente a grade da(s) célula(s) selecionada(s)"
 
 msgid "Discard Changes"
 msgstr "Descartar Mudanças"
@@ -960,7 +979,10 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "Exporta a grade da visualização atual como texto delimitado por tabulações, ignorando as subgrades. Bom para planilhas (para incluir as subgrades, use primeiro a operação Horizontalizar)"
+msgstr ""
+"Exporta a grade da visualização atual como texto delimitado por tabulações, "
+"ignorando as subgrades. Bom para planilhas (para incluir as subgrades, use "
+"primeiro a operação Horizontalizar)"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1149,7 +1171,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Mantenha Shift pressionado ao escolher para alterar as células selecionadas, mas não as que estão dentro delas"
+msgstr ""
+"Mantenha Shift pressionado ao escolher para alterar as células selecionadas, "
+"mas não as que estão dentro delas"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "Layout Horizontal, Renderização com Estilo de Bolha"
@@ -1321,6 +1345,12 @@ msgstr ""
 
 msgid "Maximum number of launches reached."
 msgstr "O número máximo de aberturas de programas foi alcançado."
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "Minimi&zar ao fechar"
@@ -1651,10 +1681,13 @@ msgid "Please select the Lobster script to run:"
 msgstr "Por favor selecione o script Lobster a executar:"
 
 msgid "Please select the TreeSheets file(s) to add as templates:"
-msgstr "Por favor selecione arquivo(s) do TreeSheets para adicionar como modelos:"
+msgstr ""
+"Por favor selecione arquivo(s) do TreeSheets para adicionar como modelos:"
 
 msgid "Please select the TreeSheets file(s) to create documents from:"
-msgstr "Por favor selecione arquivo(s) do TreeSheets a partir dos quais criar documentos:"
+msgstr ""
+"Por favor selecione arquivo(s) do TreeSheets a partir dos quais criar "
+"documentos:"
 
 msgid "Please select the datetime range."
 msgstr "Por favor selecione a data/hora inicial e a final."
@@ -1734,6 +1767,18 @@ msgstr "Remover script da lista..."
 
 msgid "Remove template from list..."
 msgstr "Remover modelo da lista..."
+
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
 
 msgid "Render document centered"
 msgstr "Renderizar documento &centralizado na tela"
@@ -1933,7 +1978,10 @@ msgstr "Define a cor do plano de fundo do documento"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "Define as cores do cursor, da sombra da célula sob o ponteiro do mouse, dos resultados da pesquisa, das operações e a cor personalizada das listas de cores"
+msgstr ""
+"Define as cores do cursor, da sombra da célula sob o ponteiro do mouse, dos "
+"resultados da pesquisa, das operações e a cor personalizada das listas de "
+"cores"
 
 msgid "Set the default column width for a new grid"
 msgstr "Define largura padrão das colunas para uma nova grade"
@@ -2034,6 +2082,15 @@ msgstr "Classificar em Ordem &Ascendente"
 msgid "Sort &Descending"
 msgstr "Classificar em Ordem &Descendente"
 
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
+
 msgid "Start date and time"
 msgstr "Data/hora inicial"
 
@@ -2052,7 +2109,9 @@ msgstr "O TreeSheets inicia minimizado"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "Insere uma caixa de seleção no início do texto da célula, marca-a ou remove-a (um clique nela marca ou desmarca)"
+msgstr ""
+"Insere uma caixa de seleção no início do texto da célula, marca-a ou remove-"
+"a (um clique nela marca ou desmarca)"
 
 msgid "Statusbar"
 msgstr "Barra de &status"
@@ -2162,9 +2221,6 @@ msgstr "Essa operação funciona em uma única célula selecionada."
 
 msgid "Toggle &Fullscreen View"
 msgstr "Entrar/Sair da Visualização em Tela &Cheia"
-
-msgid "&Scaled Presentation View"
-msgstr "Visualização de Apresentação em &Escala"
 
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "Dobrar/Desdobrar (CTRL+clique duplo)"
@@ -2280,6 +2336,13 @@ msgstr "Desdobrar Todas (CTRL+SHIFT+clique duplo)"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "Desdobra recursivamente a grade da(s) célula(s) selecionada(s)"
+
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "Centralizar (CTRL+SHIFT+e)"
 
 msgid "Uses"
 msgstr "Usa"
@@ -2399,6 +2462,10 @@ msgstr "nada para redimensionar"
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr "Cola as cores e o estilo, mas não o texto, da célula que foi copiada"
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "só funciona com a célula em modo texto"
+
 msgid "only works in cell text mode"
 msgstr "só funciona com a célula em modo texto"
 
@@ -2410,3 +2477,7 @@ msgstr "Reverte as mudanças, um passo de cada vez"
 
 msgid "scale:"
 msgstr "escala:"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "Estender Seleção para o Início da Linha"

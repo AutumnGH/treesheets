@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: treesheets git\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2022-11-14 18:00+0200\n"
 "Last-Translator: Tobias Predel <tobias.predel@gmail.com>\n"
 "Language: de\n"
@@ -150,6 +150,10 @@ msgstr "&Link..."
 msgid "&Mark as"
 msgstr "&Markieren als"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "Zellen nach oben verschieben"
+
 msgid "&New"
 msgstr "&Neu"
 
@@ -227,6 +231,9 @@ msgstr "&Speichern"
 
 msgid "&Save as..."
 msgstr "&Speichern unter..."
+
+msgid "&Scaled Presentation View"
+msgstr "&Skalierte Präsentationsansicht"
 
 msgid "&Script reference"
 msgstr "&Skriptreferenz"
@@ -309,7 +316,8 @@ msgid "Add an image to the selected cell"
 msgstr "Ein Bild in die ausgewählte Zelle einfügen"
 
 msgid "Add the file of the current document to this menu as a template"
-msgstr "Die Datei des aktuellen Dokuments als Vorlage zu diesem Menü hinzufügen"
+msgstr ""
+"Die Datei des aktuellen Dokuments als Vorlage zu diesem Menü hinzufügen"
 
 msgid "Adds a NxN grid to the selected cell"
 msgstr "Eine NxN-Tabelle in die ausgewählte Zelle einfügen"
@@ -477,6 +485,9 @@ msgstr ""
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr ""
 "Es kann nur diese Zelle in eine Nx1- oder 1xN-Tabelle verschoben werden."
+
+msgid "Can only swap a cell that has text."
+msgstr ""
 
 msgid "Can paste or drop only exactly one file."
 msgstr ""
@@ -735,10 +746,12 @@ msgid "Decrease column width (ALT+mousewheel)"
 msgstr "Spaltenbreite verkleinern (ALT+Mausrad)"
 
 msgid "Decrease column width (no sub grids, CTRL+ALT+mousewheel)"
-msgstr "Spaltenbreite verkleinern (keine untergeordneten Tabellen, STRG+ALT+Mausrad)"
+msgstr ""
+"Spaltenbreite verkleinern (keine untergeordneten Tabellen, STRG+ALT+Mausrad)"
 
 msgid "Decrease text size (no sub grids, CTRL+SHIFT+mousewheel)"
-msgstr "Textgröße verkleinern (keine untergeordneten Tabellen, STRG+UMSCHALT+Mausrad)"
+msgstr ""
+"Textgröße verkleinern (keine untergeordneten Tabellen, STRG+UMSCHALT+Mausrad)"
 
 msgid "Default column width"
 msgstr "Standardspaltenbreite"
@@ -756,6 +769,10 @@ msgstr "Standardbildformat"
 
 msgid "Delete Before"
 msgstr "Vorhergehendes Element löschen"
+
+#, fuzzy
+msgid "Delete Grid"
+msgstr "&Nachfolgendes Element löschen"
 
 msgid "Delete Word After"
 msgstr "&Nachfolgendes Wort löschen"
@@ -780,6 +797,10 @@ msgstr "Löscht das gesamte Wort nach dem Cursor"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "Löscht das gesamte Wort vor dem Cursor"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "Klappt die Tabelle der ausgewählten Zelle(n) rekursiv aus."
 
 msgid "Discard Changes"
 msgstr "Änderungen verwerfen"
@@ -968,7 +989,11 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "Die Tabelle der aktuellen Ansicht als Text mit Tabulatoren als Trennzeichen exportieren, ohne untergeordnete Tabellen. Das eignet sich für Tabellenkalkulationen (nutzen Sie zuerst den Verflachen-Vorgang, um untergeordnete Tabellen einzuschließen)."
+msgstr ""
+"Die Tabelle der aktuellen Ansicht als Text mit Tabulatoren als Trennzeichen "
+"exportieren, ohne untergeordnete Tabellen. Das eignet sich für "
+"Tabellenkalkulationen (nutzen Sie zuerst den Verflachen-Vorgang, um "
+"untergeordnete Tabellen einzuschließen)."
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1158,7 +1183,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Beim Auswählen Umschalt gedrückt halten, um nur die ausgewählten Zellen zu ändern, nicht die darin enthaltenen"
+msgstr ""
+"Beim Auswählen Umschalt gedrückt halten, um nur die ausgewählten Zellen zu "
+"ändern, nicht die darin enthaltenen"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "Horizontale Anordnung mit Blasenstil-Rendering"
@@ -1205,10 +1232,12 @@ msgid "Increase column width (ALT+mousewheel)"
 msgstr "Spaltenbreite vergrößern (ALT+Mausrad)"
 
 msgid "Increase column width (no sub grids, CTRL+ALT+mousewheel)"
-msgstr "Spaltenbreite vergrößern (keine untergeordneten Tabellen, STRG+ALT+Mausrad)"
+msgstr ""
+"Spaltenbreite vergrößern (keine untergeordneten Tabellen, STRG+ALT+Mausrad)"
 
 msgid "Increase text size (no sub grids, CTRL+SHIFT+mousewheel)"
-msgstr "Textgröße vergrößern (keine untergeordneten Tabellen, STRG+UMSCHALT+Mausrad)"
+msgstr ""
+"Textgröße vergrößern (keine untergeordneten Tabellen, STRG+UMSCHALT+Mausrad)"
 
 msgid "Indented &Text..."
 msgstr "Eingerückter &Text"
@@ -1329,6 +1358,12 @@ msgstr ""
 msgid "Maximum number of launches reached."
 msgstr ""
 "Maximale Anzahl an Startvorgängen (externer Anwendungen) wurde erreicht."
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "Beim Schließen minimieren"
@@ -1660,10 +1695,14 @@ msgid "Please select the Lobster script to run:"
 msgstr "Bitte wählen Sie das auszuführende Lobster-Skript aus:"
 
 msgid "Please select the TreeSheets file(s) to add as templates:"
-msgstr "Bitte wählen Sie die TreeSheets-Datei(en) aus, die als Vorlagen hinzugefügt werden sollen:"
+msgstr ""
+"Bitte wählen Sie die TreeSheets-Datei(en) aus, die als Vorlagen hinzugefügt "
+"werden sollen:"
 
 msgid "Please select the TreeSheets file(s) to create documents from:"
-msgstr "Bitte wählen Sie die TreeSheets-Datei(en) aus, aus denen Dokumente erstellt werden sollen:"
+msgstr ""
+"Bitte wählen Sie die TreeSheets-Datei(en) aus, aus denen Dokumente erstellt "
+"werden sollen:"
 
 msgid "Please select the datetime range."
 msgstr "Bitte wählen Sie den Datums- und Zeitbereich aus."
@@ -1681,7 +1720,8 @@ msgstr ""
 "Bitte wählen Sie das Skript aus, das sie aus der Liste entfernen möchten:"
 
 msgid "Please select the template you want to remove from the list:"
-msgstr "Bitte wählen Sie die Vorlage aus, die Sie aus der Liste entfernen möchten:"
+msgstr ""
+"Bitte wählen Sie die Vorlage aus, die Sie aus der Liste entfernen möchten:"
 
 msgid "Press F11 to exit fullscreen mode."
 msgstr "F11 drücken, um den Vollbildmous zu verlassen."
@@ -1746,6 +1786,18 @@ msgstr "Skript aus der Liste entfernen..."
 
 msgid "Remove template from list..."
 msgstr "Vorlage aus der Liste entfernen..."
+
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
 
 msgid "Render document centered"
 msgstr "Dokument mittig rendern"
@@ -1945,7 +1997,9 @@ msgstr "Die Farbe für den Dokumentenhintergrund wählen"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "Die Farben des Cursors, des Schwebeschattens, der Suchergebnisse, der Operationen und die benutzerdefinierte Farbe der Farbauswahllisten festlegen"
+msgstr ""
+"Die Farben des Cursors, des Schwebeschattens, der Suchergebnisse, der "
+"Operationen und die benutzerdefinierte Farbe der Farbauswahllisten festlegen"
 
 msgid "Set the default column width for a new grid"
 msgstr "Die Standardspaltenbreite für eine neue Tabelle setzen"
@@ -2050,6 +2104,15 @@ msgstr "&Aufsteigend sortieren"
 msgid "Sort &Descending"
 msgstr "Absteigen&d sortieren"
 
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
+
 msgid "Start date and time"
 msgstr "Startdatum und -zeit"
 
@@ -2068,7 +2131,9 @@ msgstr "Die Anwendung minimiert starten"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "Setzt ein Abhakfeld an den Anfang des Zellentexts, hakt es ab oder entfernt es (ein Klick darauf setzt oder entfernt das Häkchen)"
+msgstr ""
+"Setzt ein Abhakfeld an den Anfang des Zellentexts, hakt es ab oder entfernt "
+"es (ein Klick darauf setzt oder entfernt das Häkchen)"
 
 msgid "Statusbar"
 msgstr "Statuszeile"
@@ -2177,9 +2242,6 @@ msgstr "Dieser Vorgang funktioniert nur mit einer einzigen ausgewählten Zelle."
 
 msgid "Toggle &Fullscreen View"
 msgstr "&Vollbildmodus ein-/ausschalten"
-
-msgid "&Scaled Presentation View"
-msgstr "&Skalierte Präsentationsansicht"
 
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "Ein-/Ausklappen (STRG+Doppelklick)"
@@ -2300,6 +2362,13 @@ msgstr ""
 "Alle Tabellen in der ausgewählten Zelle/in den ausgewählten Zellen rekursiv "
 "ausklappen"
 
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "Zentrieren (STRG+UMSCHALT+e)"
+
 msgid "Uses"
 msgstr "Benutzt"
 
@@ -2419,6 +2488,10 @@ msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr ""
 "Setzt nur die Farben und den Stil der kopierten Zelle und hält den Text bei."
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "Dies funktioniert nur im Zelltextmodus!"
+
 msgid "only works in cell text mode"
 msgstr "Dies funktioniert nur im Zelltextmodus!"
 
@@ -2432,3 +2505,7 @@ msgstr "Nimmt die Änderungen Schritt für Schritt zurück"
 
 msgid "scale:"
 msgstr "Skalierung:"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "Auswahl bis zum Anfang ausweiten"

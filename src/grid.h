@@ -37,6 +37,8 @@ struct Grid {
     bool horiz {false};
     bool tinyborder {false};
     bool folded {false};
+    // Whether any cell is part of a merged block, as of the last Layout().
+    bool hasmerge {false};
 
     unique_ptr<Cell> &C(int x, int y) {
         ASSERT(x >= 0 && y >= 0 && x < xs && y < ys);
@@ -90,6 +92,133 @@ struct Grid {
                 for (bool _f = true; _f;)   \
                     for (unique_ptr<Cell> &c = g->C(x, y); _f; _f = false)
 
+    // Merged cells. The top left of a merged block holds its size in spanx/spany; a cell covered
+    // by it holds the negated offset to that top left; an unmerged cell is (1, 1). This keeps
+    // every cell, and so the tree, exactly where it was, and only changes how they are drawn.
+
+    bool Covered(int x, int y) const {
+        auto *c = C(x, y);
+        return c->spanx <= 0 || c->spany <= 0;
+    }
+
+    void AnchorCoords(int x, int y, int &ax, int &ay) const {
+        auto *c = C(x, y);
+        ax = x + min<int>(c->spanx, 0);
+        ay = y + min<int>(c->spany, 0);
+    }
+
+    Cell *Anchor(int x, int y) const {
+        int ax, ay;
+        AnchorCoords(x, y, ax, ay);
+        return C(ax, ay);
+    }
+
+    // The width the text of the cell at (x, y) wraps in: a merged block's is the width of all
+    // its columns plus the grid lines between them.
+    int TextWidth(int x, int y) const {
+        auto *c = C(x, y);
+        if (c->spanx <= 0) { return colwidths[x]; }
+        auto w = 0;
+        loop(i, c->spanx) w += colwidths[x + i];
+        return w + (c->spanx - 1) * g_line_width;
+    }
+
+    // Turns the merged block at (ax, ay) back into separate cells, keeping all their content.
+    void Unmerge(int ax, int ay) {
+        auto *a = C(ax, ay).get();
+        int w = a->spanx, h = a->spany;
+        if (w <= 1 && h <= 1) { return; }
+        loop(yy, h) loop(xx, w) {
+            auto *c = C(ax + xx, ay + yy).get();
+            c->spanx = c->spany = 1;
+        }
+        a->Reset();  // its text wraps in the width of one column again
+    }
+
+    // Unmerges every block that the selection touches, so structural edits can't break them.
+    void DissolveSpans(const Selection &sel) {
+        loop(yy, sel.ys) loop(xx, sel.xs) {
+            int ax, ay;
+            AnchorCoords(sel.x + xx, sel.y + yy, ax, ay);
+            Unmerge(ax, ay);
+        }
+    }
+
+    // Unmerges the blocks that a row or column inserted at dx/dy would split.
+    void DissolveSpansCrossing(int dx, int dy, int nxs, int nys) {
+        foreachcell(c) {
+            if (nxs > 0 && c->spanx > 1 && x < dx && x + c->spanx > dx) { Unmerge(x, y); }
+            if (nys > 0 && c->spany > 1 && y < dy && y + c->spany > dy) { Unmerge(x, y); }
+        }
+    }
+
+    // Whether the selection touches a merged block.
+    bool SpansIn(const Selection &sel) const {
+        loop(yy, sel.ys) loop(xx, sel.xs) {
+            int ax, ay;
+            AnchorCoords(sel.x + xx, sel.y + yy, ax, ay);
+            auto *a = C(ax, ay);
+            if (a->spanx > 1 || a->spany > 1) { return true; }
+        }
+        return false;
+    }
+
+    // Expands the selection to include every merged block it partly covers.
+    void SnapSelection(Selection &sel) {
+        if (!hasmerge) { return; }
+        for (bool changed = true; changed;) {
+            changed = false;
+            loop(yy, sel.ys) loop(xx, sel.xs) {
+                int ax, ay;
+                AnchorCoords(sel.x + xx, sel.y + yy, ax, ay);
+                auto *a = C(ax, ay).get();
+                int x1 = ax + max<int>(a->spanx, 1), y1 = ay + max<int>(a->spany, 1);
+                if (ax < sel.x) { sel.xs += sel.x - ax; sel.x = ax; changed = true; }
+                if (ay < sel.y) { sel.ys += sel.y - ay; sel.y = ay; changed = true; }
+                if (x1 > sel.x + sel.xs) { sel.xs = x1 - sel.x; changed = true; }
+                if (y1 > sel.y + sel.ys) { sel.ys = y1 - sel.y; changed = true; }
+            }
+        }
+    }
+
+    // Clears blocks whose cells don't all point back at them, e.g. after pasting part of one.
+    void NormalizeSpans() {
+        foreachcell(c) {
+            if (c->spanx > 1 || c->spany > 1) {
+                int w = c->spanx, h = c->spany;
+                bool ok = x + w <= xs && y + h <= ys;
+                for (int yy = y; ok && yy < y + h; yy++) {
+                    for (int xx = x; ok && xx < x + w; xx++) {
+                        if (xx == x && yy == y) { continue; }
+                        auto *k = C(xx, yy).get();
+                        ok = k->spanx == -(xx - x) && k->spany == -(yy - y);
+                    }
+                }
+                if (!ok) { Unmerge(x, y); }
+            }
+        }
+        foreachcell(c) {
+            if (c->spanx <= 0 || c->spany <= 0) {
+                int ax, ay;
+                AnchorCoords(x, y, ax, ay);
+                auto ok = ax >= 0 && ay >= 0 && ax < xs && ay < ys;
+                if (ok) {
+                    auto *a = C(ax, ay).get();
+                    ok = a->spanx > 1 || a->spany > 1;
+                }
+                if (!ok) { c->spanx = c->spany = 1; }
+            }
+        }
+    }
+
+    // Whether the grid line before column x (row y) is inside a merged block at row y (column x).
+    bool SpanCrossesV(int x, int y) const {
+        return x > 0 && x < xs && Anchor(x - 1, y) == Anchor(x, y);
+    }
+    bool SpanCrossesH(int x, int y) const {
+        return y > 0 && y < ys && Anchor(x, y - 1) == Anchor(x, y);
+    }
+
     Grid(int _xs, int _ys, Cell *_c = nullptr)
         : xs(_xs), ys(_ys), cell(_c), cells(_xs * _ys) {
         InitColWidths();
@@ -128,6 +257,7 @@ struct Grid {
         auto cl = make_unique<Cell>(nullptr, sel.grid->cell, CT_DATA, make_shared<Grid>(sel.xs, sel.ys));
         foreachcellinsel(c, sel) cl->grid->C(x - sel.x, y - sel.y) = c->Clone(cl.get());
         loop(i, sel.xs) cl->grid->colwidths[i] = sel.grid->colwidths[sel.x + i];
+        cl->grid->NormalizeSpans();
         return cl;
     }
 
@@ -148,11 +278,44 @@ struct Grid {
         vector<int> xa(xs, 0);
         vector<int> ya(ys, 0);
         tinyborder = true;
+        hasmerge = false;
+        // The width a cell wraps in. A merged block's is the width of all its columns, plus the
+        // grid lines between them.
+        auto maxw = [&](int x, int w) {
+            auto m = 0;
+            loop(i, w) m += colwidths[x + i];
+            return m + (w - 1) * g_line_width;
+        };
         foreachcell(c) {
-            c->LazyLayout(doc, dc, depth + 1, colwidths[x], forcetiny);
+            if (c->spanx <= 0 || c->spany <= 0) { continue; }  // covered by a merged block
+            hasmerge = hasmerge || c->spanx > 1 || c->spany > 1;
+            c->LazyLayout(doc, dc, depth + 1, maxw(x, c->spanx), forcetiny);
             tinyborder = c->tiny && tinyborder;
-            xa[x] = max(xa[x], c->sx);
-            ya[y] = max(ya[y], c->sy);
+            // A merged block gets its size from its columns and rows, but its content still
+            // widens them, like an unmerged cell widens its own column and row.
+            if (c->spanx == 1) { xa[x] = max(xa[x], c->sx); }
+            if (c->spany == 1) { ya[y] = max(ya[y], c->sy); }
+        }
+        foreachcell(c) {
+            if (c->spanx <= 0 || c->spany <= 0) { continue; }
+            if (c->spanx > 1) {
+                auto sum = 0;
+                loop(i, c->spanx) sum += xa[x + i];
+                auto d = c->sx + (c->spanx - 1) * g_line_width - sum;
+                if (d > 0) {
+                    loop(i, c->spanx) xa[x + i] += d / c->spanx;
+                    xa[x + c->spanx - 1] += d % c->spanx;
+                }
+            }
+            if (c->spany > 1) {
+                auto sum = 0;
+                loop(i, c->spany) sum += ya[y + i];
+                auto d = c->sy + (c->spany - 1) * g_line_width - sum;
+                if (d > 0) {
+                    loop(i, c->spany) ya[y + i] += d / c->spany;
+                    ya[y + c->spany - 1] += d % c->spany;
+                }
+            }
         }
         colmaxcache = xa;
         rowmaxcache = ya;
@@ -179,11 +342,20 @@ struct Grid {
         foreachcell(c) {
             if (y == 0) { coloffsets[x] = cx; }
             if (x == 0) { rowoffsets[y] = cy; }
-            c->ox = cx;
-            c->oy = cy;
-            c->sx = xa[x];
-            c->sy = ya[y];
-            c->AlignContent(doc);
+            if (c->spanx <= 0 || c->spany <= 0) {
+                // Covered by a merged block: no area of its own, so it is never drawn or hit.
+                c->ox = c->oy = c->sx = c->sy = 0;
+            } else {
+                c->ox = cx;
+                c->oy = cy;
+                auto w = 0;
+                loop(i, c->spanx) w += xa[x + i];
+                auto h = 0;
+                loop(i, c->spany) h += ya[y + i];
+                c->sx = w + (c->spanx - 1) * (g_line_width + cell_margin * 2);
+                c->sy = h + (c->spany - 1) * (g_line_width + cell_margin * 2);
+                c->AlignContent(doc);
+            }
             cx += xa[x] + g_line_width + cell_margin * 2;
             if (x == xs - 1) {
                 cy += ya[y] + g_line_width + cell_margin * 2;
@@ -247,7 +419,9 @@ struct Grid {
     // The columns [x0, x1) and rows [y0, y1) that may overlap the region [lx, hx) x [ly, hy)
     // (relative to this grid's cell), or all of them if the cached geometry isn't current.
     tuple<int, int, int, int> OverlappingCells(int lx, int hx, int ly, int hy) const {
-        if (!HasCachedGeometry()) { return {0, xs, 0, ys}; }
+        // A merged block reaches past its own column, which the cached per-column offsets don't
+        // describe, so with merges every cell is tested.
+        if (!HasCachedGeometry() || hasmerge) { return {0, xs, 0, ys}; }
         auto [x0, x1] = OverlappingRange(coloffsets, colmaxcache, lx, hx);
         auto [y0, y1] = OverlappingRange(rowoffsets, rowmaxcache, ly, hy);
         return {x0, x1, y0, y1};
@@ -269,43 +443,81 @@ struct Grid {
             OverlappingCells(doc->scrollx - bx, doc->maxx - bx, doc->scrolly - by, doc->maxy - by);
         for (int y = y0; y < y1; y++) for (int x = x0; x < x1; x++) {
             auto &c = C(x, y);
+            if (c->spanx <= 0 || c->spany <= 0) { continue; }  // covered by a merged block
             int cx = bx + c->ox;
             int cy = by + c->oy;
             if (cx < doc->maxx && cx + c->sx > doc->scrollx && cy < doc->maxy &&
                 cy + c->sy > doc->scrolly) {
                 c->Render(doc, cx, cy, dc, depth + 1, x == 0 ? view_margin : g_line_width,
-                          x == xs - 1 ? view_margin : 0, y == 0 ? view_margin : g_line_width,
-                          y == ys - 1 ? view_margin : 0, colwidths[x], cell_margin);
+                          x + c->spanx == xs ? view_margin : 0,
+                          y == 0 ? view_margin : g_line_width,
+                          y + c->spany == ys ? view_margin : 0, TextWidth(x, y), cell_margin);
             }
         }
 
         xoff = C(0, 0)->ox - view_margin - view_grid_outer_spacing - 1;
         yoff = C(0, 0)->oy - view_margin - view_grid_outer_spacing - 1;
-        int maxx = C(xs - 1, 0)->ox + C(xs - 1, 0)->sx;
-        int maxy = C(0, ys - 1)->oy + C(0, ys - 1)->sy;
+        // The cached per-column and per-row geometry, which a covered cell doesn't carry itself.
+        bool cached = HasCachedGeometry();
+        auto colx = [&](int x) { return cached ? coloffsets[x] : C(x, 0)->ox; };
+        auto rowy = [&](int y) { return cached ? rowoffsets[y] : C(0, y)->oy; };
+        auto colw = [&](int x) { return cached ? colmaxcache[x] : C(x, 0)->sx; };
+        auto rowh = [&](int y) { return cached ? rowmaxcache[y] : C(0, y)->sy; };
+        int maxx = cached ? colx(xs - 1) + colw(xs - 1) : C(xs - 1, 0)->ox + C(xs - 1, 0)->sx;
+        int maxy = cached ? rowy(ys - 1) + rowh(ys - 1) : C(0, ys - 1)->oy + C(0, ys - 1)->sy;
         if (tinyborder || cell->drawstyle == DS_GRID) {
             int ldelta = static_cast<int>(view_grid_outer_spacing != 0);
             auto drawlines = [&]() {
-                for (int x = ldelta; x <= xs - ldelta; x++) {
-                    int xl = (x == xs ? maxx : C(x, 0)->ox - g_line_width) + bx;
+                auto vline = [&](int x, int top, int bottom) {
+                    int xl = (x == xs ? maxx : colx(x) - g_line_width) + bx;
                     if (xl >= doc->scrollx && xl < doc->maxx) {
                         // Extend by ldelta so the line overlaps the rounded outer border
                         // (drawn afterwards) instead of leaving a 1px gap where the
                         // exclusive-endpoint line and the inclusive rounded-rect edge meet.
-                        auto [top, bottom] =
-                            LineSpan(by + yoff + view_grid_outer_spacing - ldelta,
-                                     by + maxy + g_line_width + view_margin + ldelta, doc->scrolly,
-                                     doc->maxy);
-                        loop(line, g_line_width) dc.DrawLine(xl + line, top, xl + line, bottom);
+                        auto [t, b] = LineSpan(top, bottom, doc->scrolly, doc->maxy);
+                        loop(line, g_line_width) dc.DrawLine(xl + line, t, xl + line, b);
+                    }
+                };
+                auto hline = [&](int y, int left, int right) {
+                    int yl = (y == ys ? maxy : rowy(y) - g_line_width) + by;
+                    if (yl >= doc->scrolly && yl < doc->maxy) {
+                        auto [l, r] = LineSpan(left, right, doc->scrollx, doc->maxx);
+                        loop(line, g_line_width) dc.DrawLine(l, yl + line, r, yl + line);
+                    }
+                };
+                int top = by + yoff + view_grid_outer_spacing - ldelta;
+                int bottom = by + maxy + g_line_width + view_margin + ldelta;
+                for (int x = ldelta; x <= xs - ldelta; x++) {
+                    if (!hasmerge) {
+                        vline(x, top, bottom);
+                        continue;
+                    }
+                    // Skip the parts of the line that run through a merged block.
+                    for (int y = 0; y < ys;) {
+                        bool inside = SpanCrossesV(x, y);
+                        int y0 = y;
+                        while (y < ys && SpanCrossesV(x, y) == inside) { y++; }
+                        if (!inside) {
+                            vline(x, y0 == 0 ? top : by + rowy(y0) - g_line_width,
+                                  y == ys ? bottom : by + rowy(y - 1) + rowh(y - 1));
+                        }
                     }
                 }
+                int left = bx + xoff + view_grid_outer_spacing + g_line_width - ldelta;
+                int right = bx + maxx + view_margin + ldelta;
                 for (int y = ldelta; y <= ys - ldelta; y++) {
-                    int yl = (y == ys ? maxy : C(0, y)->oy - g_line_width) + by;
-                    if (yl >= doc->scrolly && yl < doc->maxy) {
-                        auto [left, right] =
-                            LineSpan(bx + xoff + view_grid_outer_spacing + g_line_width - ldelta,
-                                     bx + maxx + view_margin + ldelta, doc->scrollx, doc->maxx);
-                        loop(line, g_line_width) dc.DrawLine(left, yl + line, right, yl + line);
+                    if (!hasmerge) {
+                        hline(y, left, right);
+                        continue;
+                    }
+                    for (int x = 0; x < xs;) {
+                        bool inside = SpanCrossesH(x, y);
+                        int x0 = x;
+                        while (x < xs && SpanCrossesH(x, y) == inside) { x++; }
+                        if (!inside) {
+                            hline(y, x0 == 0 ? left : bx + colx(x0) - g_line_width,
+                                  x == xs ? right : bx + colx(x - 1) + colw(x - 1));
+                        }
                     }
                 }
             };
@@ -431,13 +643,15 @@ struct Grid {
                     doc->hoverfoldicon = r;
                 }
                 if (c->HasText()) {
-                    c->text.FindCursor(doc, bx, by - c->ycenteroff, dc, doc->hover, colwidths[x]);
+                    c->text.FindCursor(doc, bx, by - c->ycenteroff, dc, doc->hover,
+                                       TextWidth(x, y));
                     if (auto *k = c->text.LinkAt(doc, dc, bx + c->GetX(doc), by + c->GetY(doc),
-                                                 doc->hover.cursor, colwidths[x], doc->hoverlink)) {
+                                                 doc->hover.cursor, TextWidth(x, y),
+                                                 doc->hoverlink)) {
                         doc->hoverlinkstart = k->start;
                     }
                     if (c->text.CheckBox() != 0) {
-                        c->text.ForEachRangeRect(doc, dc, 0, 1, colwidths[x],
+                        c->text.ForEachRangeRect(doc, dc, 0, 1, TextWidth(x, y),
                                                  [&](int rx, int ry, int w, int rh) {
                                                      wxRect r(rx, ry, w, rh + 1);
                                                      if (r.Contains(bx + c->GetX(doc),
@@ -512,7 +726,7 @@ struct Grid {
     template<typename DC>
     void DrawCursor(Document *doc, DC &dc, Selection &sel, bool full, uint color) {
         if (auto *c = sel.GetCell(); c != nullptr && !c->tiny && (c->HasText() || !c->grid)) {
-            c->text.DrawCursor(doc, dc, sel, full, color, colwidths[sel.x]);
+            c->text.DrawCursor(doc, dc, sel, full, color, TextWidth(sel.x, sel.y));
         }
     }
 
@@ -634,6 +848,12 @@ struct Grid {
     }
 
     void DeleteCells(int dx, int dy, int nxs, int nys) {
+        if (dx >= 0) {
+            foreachcell(c) if (c->spanx > 1 && x <= dx && dx < x + c->spanx) { Unmerge(x, y); }
+        }
+        if (dy >= 0) {
+            foreachcell(c) if (c->spany > 1 && y <= dy && dy < y + c->spany) { Unmerge(x, y); }
+        }
         vector<unique_ptr<Cell>> ncells;
         ncells.reserve((xs + nxs) * (ys + nys));
         foreachcell(c) if (x != dx && y != dy) { ncells.push_back(std::move(c)); }
@@ -656,7 +876,8 @@ struct Grid {
 
     // Returns false if the grid deleted itself, in which case it may not be used any further.
     bool MultiCellDeleteSub(Document *doc, Selection &sel) {
-        foreachcellinsel(c, sel) c->Clear();
+        // Covered cells are hidden, not what the user is looking at, so keep their content.
+        foreachcellinsel(c, sel) if (c->spanx > 0 && c->spany > 0) c->Clear();
         bool delhoriz = true;
         bool delvert = true;
         foreachcell(c) {
@@ -713,6 +934,7 @@ struct Grid {
     }
 
     void InsertCells(int dx, int dy, int nxs, int nys, unique_ptr<Cell> nc = nullptr) {
+        DissolveSpansCrossing(dx, dy, nxs, nys);
         vector<unique_ptr<Cell>> ocells = std::move(cells);
         int oxs = xs;
         int oys = ys;
@@ -779,6 +1001,7 @@ struct Grid {
             if (rc == nullptr) { return false; }
             c.reset(rc);
         }
+        NormalizeSpans();
         return true;
     }
 
@@ -862,6 +1085,12 @@ struct Grid {
                 c->Reset();
             }
         }
+        if (hasmerge) {
+            // A merged block that spans a resized column has a new width to lay out in.
+            foreachcell(c) {
+                if (c->spanx > 1 && x < sel.x + sel.xs && x + c->spanx > sel.x) { c->Reset(); }
+            }
+        }
     }
     void SetBorder(int width) {
         user_grid_outer_spacing = width;
@@ -916,6 +1145,9 @@ struct Grid {
         auto isempty = [&](const Cell *c) {
             return c == self || (c && !c->HasText() && !c->grid && !c->text.image);
         };
+        // A merged block in the way would be cut by the paste, so split it first.
+        p->DissolveSpans(Selection(p, sel.x, sel.y, min(xs, p->xs - sel.x),
+                                   min(ys, p->ys - sel.y)));
         // The first row (or column) of this grid that would land on content in the parent.
         auto firstconflict = [&](bool columns) {
             int n = columns ? xs : ys;

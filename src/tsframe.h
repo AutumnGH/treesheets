@@ -599,6 +599,10 @@ struct TSFrame : wxFrame {
                      _("Deletes the grids of the selected cells, keeping their text"));
             MyAppend(editmenu, A_WRAP, _("&Wrap in new parent") + "\tF9",
                      _("Creates a new level of hierarchy around the current selection"));
+            MyAppend(editmenu, A_MERGE, _("&Merge Cells") + "\tCTRL+M",
+                     _("Merges the selected cells into one, keeping their content"));
+            MyAppend(editmenu, A_UNMERGE, _("Unmerge Cells") + "\tCTRL+SHIFT+M",
+                     _("Splits merged cells back into separate cells, keeping their content"));
             editmenu->AppendSeparator();
             // F10 is tied to the OS on both Ubuntu and OS X, and SHIFT+F10 is now right
             // click on all platforms?
@@ -1185,6 +1189,8 @@ struct TSFrame : wxFrame {
 
         auto *celltb = NewToolbar();
         AddToolbarIcon(celltb, _("New Grid (INS)"), A_ENTERGRID, "newgrid");
+        AddToolbarIcon(celltb, _("Merge Cells (CTRL+m)"), A_MERGE, "merge");
+        AddToolbarIcon(celltb, _("Unmerge Cells (CTRL+SHIFT+m)"), A_UNMERGE, "unmerge");
         AddToolbarIcon(celltb, _("Add Image"), A_IMAGE, "image");
         AddToolbarIcon(celltb, _("Run"), wxID_EXECUTE, "run");
         FinishToolbar(celltb, "celltb", _("Cell operations"));

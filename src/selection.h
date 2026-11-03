@@ -252,7 +252,7 @@ struct Selection {
                             if (dy != 0) {
                                 cursorend = cursor;
                                 auto &text = GetCell()->text;
-                                int maxcolwidth = GetCell()->parent->grid->colwidths[x];
+                                int maxcolwidth = GetCell()->parent->grid->TextWidth(x, y);
                                 auto spans = text.FormulaSpans();
 
                                 int i = 0;
@@ -297,7 +297,7 @@ struct Selection {
                                 // Left and right as seen on the screen, which differs from the
                                 // order of the text in right-to-left text.
                                 auto &text = GetCell()->text;
-                                int maxcolwidth = GetCell()->parent->grid->colwidths[x];
+                                int maxcolwidth = GetCell()->parent->grid->TextWidth(x, y);
                                 auto leading = cursor == leadingcursor;
                                 if (cursor != cursorend) {
                                     cursor = cursorend =
@@ -321,6 +321,7 @@ struct Selection {
                                     y + dy + ys <= grid->ys) {
                                     x += dx;
                                     y += dy;
+                                    SnapToSpan(dx, dy);
                                 }
                             }
                             ExitEdit(doc);
@@ -347,6 +348,7 @@ struct Selection {
                         x = grid->xs - 1;
                         vs = 1;
                     }
+                    SnapToSpan(dx, dy);
                 };
             }
             doc->UpdateLayout();
@@ -392,6 +394,7 @@ struct Selection {
                 x = y = 0;
             }
         }
+        SnapToSpan(backwards ? -1 : 1, backwards ? -1 : 1);
         EnterEdit(doc, 0, MaxCursor());
         doc->UpdateLayout();
         doc->ScrollIfSelectionOutOfView();
@@ -422,6 +425,29 @@ struct Selection {
         doc->UpdateLayout();
         doc->canvas->Refresh();
         return wxEmptyString;
+    }
+
+    // After moving the selection by (dx, dy): a merged block is one cell, so land on its top
+    // left when moving into it, or past it when moving out of it.
+    void SnapToSpan(int dx, int dy) {
+        if (grid == nullptr || !grid->hasmerge || x < 0 || y < 0 || x >= grid->xs ||
+            y >= grid->ys || !grid->Covered(x, y)) {
+            return;
+        }
+        int ax, ay;
+        grid->AnchorCoords(x, y, ax, ay);
+        auto *a = grid->C(ax, ay).get();
+        if (dx > 0) {
+            x = ax + a->spanx;
+        } else if (dx < 0) {
+            x = ax;
+        } else if (dy > 0) {
+            y = ay + a->spany;
+        } else if (dy < 0) {
+            y = ay;
+        }
+        x = min(x, grid->xs - 1);
+        y = min(y, grid->ys - 1);
     }
 
     Cell *ThinExpand(Document *doc, bool jumptofirst = false) {

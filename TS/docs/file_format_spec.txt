@@ -1,9 +1,9 @@
-File format spec for TreeSheets .cts files, version 31. This should be enough for a programmer to write an importer/exporter.
+File format spec for TreeSheets .cts files, version 32. This should be enough for a programmer to write an importer/exporter.
 
 struct File     // not really a struct, i.e. no alignment, read an element at a time
 {
     char magic[4] = "TSFF";
-    char version = 31;
+    char version = 32;
     uchar encryption; // only if version >= 30: 0 = none, 1 = password protected, see Encryption below
     // With encryption, everything from here to the end of the file is encrypted (see Encryption).
     // TreeSheets saves the selection and the zoom level when the file is saved.
@@ -66,6 +66,9 @@ struct Cell
     uchar vertalign;    // only if version >= 29; enum { VERTALIGN_AUTO = 0, VERTALIGN_TOP, VERTALIGN_MIDDLE, VERTALIGN_BOTTOM };
                         // automatic is top, except for cells without a grid in line style, which are centered
                         // readers treat out-of-range values of both as automatic
+    short spanx;        // only if version >= 32; merged cells: the top left of a merged block holds
+    short spany;        // its size, a covered cell holds the negated offset to that top left, (1, 1) is
+                        // unmerged. signed, little-endian
     uchar cellcontents; // enum { TS_TEXT = 0, TS_GRID, TS_BOTH, TS_NEITHER };
     // The first cell that is within the selection is marked with the highest bit set to 1 (1 x x x x x x x) in cellcontents.
     if (TS_TEXT or TS_BOTH)

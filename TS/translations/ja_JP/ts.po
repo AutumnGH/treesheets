@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2026-09-20 03:10+0900\n"
 "Last-Translator: coolvitto\n"
 "Language-Team: \n"
@@ -150,6 +150,10 @@ msgstr "リンク(&L)..."
 msgid "&Mark as"
 msgstr "マーク(&M)"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "セルを上に移動"
+
 msgid "&New"
 msgstr "新規(&N)"
 
@@ -227,6 +231,9 @@ msgstr "保存(&S)"
 
 msgid "&Save as..."
 msgstr "名前を付けて保存(&S)..."
+
+msgid "&Scaled Presentation View"
+msgstr "スケール表示プレゼンテーションビュー(&S)"
 
 msgid "&Script reference"
 msgstr "スクリプトリファレンス(&S)"
@@ -473,6 +480,9 @@ msgstr "このセルは Nx1 または 1xN グリッドからのみ移動でき�
 
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr "このセルは Nx1 または 1xN グリッドにのみ移動できます。"
+
+msgid "Can only swap a cell that has text."
+msgstr ""
 
 msgid "Can paste or drop only exactly one file."
 msgstr "貼り付けまたはドロップできるファイルは正確に 1つだけです。"
@@ -742,6 +752,10 @@ msgstr "デフォルトの画像フォーマット"
 msgid "Delete Before"
 msgstr "前方を削除"
 
+#, fuzzy
+msgid "Delete Grid"
+msgstr "後方を削除(&D)"
+
 msgid "Delete Word After"
 msgstr "後方の単語を削除"
 
@@ -761,6 +775,10 @@ msgstr "カーソル位置より後ろの単語全体を削除します"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "カーソル位置より前の単語全体を削除します"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "選択したセルのグリッドを再帰的に折りたたみます"
 
 msgid "Discard Changes"
 msgstr "変更を破棄"
@@ -943,7 +961,10 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "現在のビューのグリッドをタブ区切りテキストとしてエクスポートします。サブグリッドはスキップされます。スプレッドシートに適しています（サブグリッドも含めるには、先にフラット化操作を使用してください）"
+msgstr ""
+"現在のビューのグリッドをタブ区切りテキストとしてエクスポートします。サブグ"
+"リッドはスキップされます。スプレッドシートに適しています（サブグリッドも含め"
+"るには、先にフラット化操作を使用してください）"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1064,7 +1085,9 @@ msgstr "選択したセルのグリッドを再帰的に折りたたみます"
 msgid ""
 "Follows the link at the cursor or in the selected cell, or else opens its "
 "text in the browser"
-msgstr "カーソル位置または選択したセルのリンクをたどります。リンクがなければセルのテキストをブラウザで開きます"
+msgstr ""
+"カーソル位置または選択したセルのリンクをたどります。リンクがなければセルのテ"
+"キストをブラウザで開きます"
 
 msgid "Font..."
 msgstr "フォント..."
@@ -1129,7 +1152,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Shift キーを押しながら選ぶと、選択したセルだけを変更し、その中のセルは変更しません"
+msgstr ""
+"Shift キーを押しながら選ぶと、選択したセルだけを変更し、その中のセルは変更し"
+"ません"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "バブルスタイルレンダリングの水平レイアウト"
@@ -1242,7 +1267,9 @@ msgstr ""
 
 msgid ""
 "Let AI agents run Lobster scripts on the open document through a local socket"
-msgstr "AI エージェントがローカル ソケット経由で開いているドキュメントに Lobster スクリプトを実行できるようにします"
+msgstr ""
+"AI エージェントがローカル ソケット経由で開いているドキュメントに Lobster スク"
+"リプトを実行できるようにします"
 
 msgid "Line Style Rendering"
 msgstr "ラインスタイルレンダリング"
@@ -1262,7 +1289,9 @@ msgstr "リンク"
 msgid ""
 "Links the selected text to a web page, a file or the nearest cell with that "
 "text (CTRL+click follows it)"
-msgstr "選択したテキストを Web ページ、ファイル、またはそのテキストを持つ最も近いセルにリンクします（CTRL+クリックでリンクをたどります）"
+msgstr ""
+"選択したテキストを Web ページ、ファイル、またはそのテキストを持つ最も近いセル"
+"にリンクします（CTRL+クリックでリンクをたどります）"
 
 msgid "Load an interactive program operation reference in TreeSheets"
 msgstr "TreeSheets に対話型プログラム操作リファレンスを読み込む"
@@ -1288,6 +1317,12 @@ msgstr "階層レイアウトをより垂直（デフォルト）またはより
 
 msgid "Maximum number of launches reached."
 msgstr "起動可能な最大回数に達しました。"
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "閉じるときに最小化"
@@ -1696,6 +1731,18 @@ msgstr "リストからスクリプトを削除..."
 msgid "Remove template from list..."
 msgstr "リストからテンプレートを削除..."
 
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
+
 msgid "Render document centered"
 msgstr "ドキュメントを中央揃えでレンダリング"
 
@@ -1891,7 +1938,9 @@ msgstr "ドキュメントの背景色を設定"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "カーソル、ホバーシャドウ、検索結果、操作の色と、色ドロップダウンのカスタムカラーを設定"
+msgstr ""
+"カーソル、ホバーシャドウ、検索結果、操作の色と、色ドロップダウンのカスタムカ"
+"ラーを設定"
 
 msgid "Set the default column width for a new grid"
 msgstr "新しいグリッドのデフォルト列幅を設定"
@@ -1983,13 +2032,23 @@ msgid "Size %s"
 msgstr "サイズ %s"
 
 msgid "Some icons are based on vscode-icons by Microsoft (CC BY 4.0):"
-msgstr "一部のアイコンは Microsoft の vscode-icons (CC BY 4.0) に基づいています:"
+msgstr ""
+"一部のアイコンは Microsoft の vscode-icons (CC BY 4.0) に基づいています:"
 
 msgid "Sort &Ascending"
 msgstr "昇順ソート(&A)"
 
 msgid "Sort &Descending"
 msgstr "降順ソート(&D)"
+
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
 
 msgid "Start date and time"
 msgstr "開始日時"
@@ -2009,7 +2068,9 @@ msgstr "アプリケーションを最小化して起動"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "セルのテキストの先頭にチェックボックスを付け、チェックを入れ、または削除します(クリックするとチェックを入れたり外したりします)"
+msgstr ""
+"セルのテキストの先頭にチェックボックスを付け、チェックを入れ、または削除しま"
+"す(クリックするとチェックを入れたり外したりします)"
 
 msgid "Statusbar"
 msgstr "ステータスバー"
@@ -2118,9 +2179,6 @@ msgstr "この操作は単一の選択セルのみで機能します。"
 msgid "Toggle &Fullscreen View"
 msgstr "全画面表示を切り替え(&F)"
 
-msgid "&Scaled Presentation View"
-msgstr "スケール表示プレゼンテーションビュー(&S)"
-
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "折りたたみを切り替え (Ctrl+ダブルクリック)"
 
@@ -2225,6 +2283,13 @@ msgstr "すべて展開 (Ctrl+SHIFT+ダブルクリック)"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "選択したセルのグリッドを再帰的に展開します"
+
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "中央揃え (Ctrl+Shift+E)"
 
 msgid "Uses"
 msgstr "使用"
@@ -2345,6 +2410,10 @@ msgstr "サイズ変更するものはありません"
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr "コピーしたセルの色とスタイルのみを設定し、テキストは保持します"
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "セルテキストモードでのみ機能します"
+
 msgid "only works in cell text mode"
 msgstr "セルテキストモードでのみ機能します"
 
@@ -2356,3 +2425,7 @@ msgstr "変更を1ステップずつ元に戻します"
 
 msgid "scale:"
 msgstr "スケール :"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "選択範囲を先頭まで拡張"

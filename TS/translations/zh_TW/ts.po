@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2026-05-31 09:43+0800\n"
 "Last-Translator: Peter Dave Hello <hsu@peterdavehello.org>\n"
 "Language-Team: \n"
@@ -105,7 +105,7 @@ msgid "&Flatten"
 msgstr "扁平化(&F)"
 
 msgid "&Formula"
-msgstr ""
+msgstr "公式(&F)"
 
 msgid "&Grid Reorganization"
 msgstr "網格重組(&G)"
@@ -148,6 +148,9 @@ msgstr "連結(&L)..."
 
 msgid "&Mark as"
 msgstr "標記為(&M)"
+
+msgid "&Merge Cells"
+msgstr "合併儲存格(&M)"
 
 msgid "&New"
 msgstr "新增(&N)"
@@ -226,6 +229,9 @@ msgstr "儲存(&S)"
 
 msgid "&Save as..."
 msgstr "另存新檔(&S)..."
+
+msgid "&Scaled Presentation View"
+msgstr "縮放簡報檢視(&S)"
 
 msgid "&Script reference"
 msgstr "指令碼參考(&S)"
@@ -470,6 +476,9 @@ msgstr "只能從 Nx1 或 1xN 網格中移動此儲存格。"
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr "只能將此儲存格移入 Nx1 或 1xN 網格中。"
 
+msgid "Can only swap a cell that has text."
+msgstr "只能交換有文字的儲存格。"
+
 msgid "Can paste or drop only exactly one file."
 msgstr "只能貼上或拖放一個檔案。"
 
@@ -637,7 +646,7 @@ msgid "Copy As Continuous Text"
 msgstr "複製為連續文字"
 
 msgid "Copy as &SVG"
-msgstr ""
+msgstr "複製為 SVG(&S)"
 
 msgid "Copy selection"
 msgstr "複製選取內容"
@@ -647,7 +656,7 @@ msgid ""
 msgstr "將所選儲存格的圖片以原始尺寸複製到剪貼簿"
 
 msgid "Copy the selection as SVG vector graphics"
-msgstr ""
+msgstr "將選取內容複製為 SVG 向量圖形"
 
 msgid "Copy with &Images"
 msgstr "連同圖片複製(&I)"
@@ -732,6 +741,9 @@ msgstr "預設圖片格式"
 msgid "Delete Before"
 msgstr "刪除前方內容"
 
+msgid "Delete Grid"
+msgstr "刪除網格"
+
 msgid "Delete Word After"
 msgstr "刪除後方字詞"
 
@@ -751,6 +763,9 @@ msgstr "刪除游標後方的整個字詞"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "刪除游標前方的整個字詞"
+
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "刪除選取儲存格的網格，並保留其文字"
 
 msgid "Discard Changes"
 msgstr "捨棄變更"
@@ -919,7 +934,9 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "將目前檢視的網格匯出為定位字元分隔文字，略過子網格。適用於試算表（如需包含子網格，請先使用「扁平化」操作）"
+msgstr ""
+"將目前檢視的網格匯出為定位字元分隔文字，略過子網格。適用於試算表（如需包含子"
+"網格，請先使用「扁平化」操作）"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1041,10 +1058,10 @@ msgid "Font..."
 msgstr "字型..."
 
 msgid "Formula "
-msgstr ""
+msgstr "公式 "
 
 msgid "Formula bar"
-msgstr ""
+msgstr "公式列"
 
 msgid "Found an image type that is not defined in this program."
 msgstr "發現此程式未定義的圖片類型。"
@@ -1229,7 +1246,8 @@ msgstr "連結"
 msgid ""
 "Links the selected text to a web page, a file or the nearest cell with that "
 "text (CTRL+click follows it)"
-msgstr "將選取的文字連結到網頁、檔案或含有該文字的最近儲存格（CTRL+按一下可開啟連結）"
+msgstr ""
+"將選取的文字連結到網頁、檔案或含有該文字的最近儲存格（CTRL+按一下可開啟連結）"
 
 msgid "Load an interactive program operation reference in TreeSheets"
 msgstr "在 TreeSheets 中載入互動式程式操作參考"
@@ -1254,6 +1272,12 @@ msgstr "讓階層版面配置偏向垂直（預設）或偏向水平"
 
 msgid "Maximum number of launches reached."
 msgstr "已達到最大啟動次數。"
+
+msgid "Merge Cells (CTRL+m)"
+msgstr "合併儲存格（CTRL+m）"
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr "將選取的儲存格合併為一個，並保留其內容"
 
 msgid "Minimize on close"
 msgstr "關閉時最小化"
@@ -1648,6 +1672,18 @@ msgstr "從清單中移除指令碼..."
 msgid "Remove template from list..."
 msgstr "從清單中移除範本..."
 
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr "內嵌轉譯 \\( 與 \\) 之間的 LaTeX 數學公式"
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr "內嵌轉譯美元符號之間的 LaTeX 數學公式"
+
+msgid "Render TeX formulas in $...$"
+msgstr "轉譯 $...$ 中的 TeX 公式"
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr "轉譯 \\(...\\) 中的 TeX 公式"
+
 msgid "Render document centered"
 msgstr "置中繪製文件"
 
@@ -1712,7 +1748,7 @@ msgid "S&cript"
 msgstr "指令碼(&C)"
 
 msgid "SVG copied to clipboard"
-msgstr ""
+msgstr "已複製 SVG 到剪貼簿"
 
 msgid "Save &As..."
 msgstr "另存新檔(&A)..."
@@ -1835,7 +1871,8 @@ msgstr "設定文件背景色彩"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "設定游標、游標懸停陰影、搜尋結果、操作的色彩，以及色彩下拉清單的自訂色彩"
+msgstr ""
+"設定游標、游標懸停陰影、搜尋結果、操作的色彩，以及色彩下拉清單的自訂色彩"
 
 msgid "Set the default column width for a new grid"
 msgstr "為新網格設定預設欄寬"
@@ -1935,6 +1972,15 @@ msgstr "遞增排序(&A)"
 msgid "Sort &Descending"
 msgstr "遞減排序(&D)"
 
+msgid "Split cell at the cursor"
+msgstr "在游標處拆分儲存格"
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr "將合併的儲存格拆分為獨立儲存格，並保留其內容"
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr "將文字拆分為子網格中並排的兩個儲存格"
+
 msgid "Start date and time"
 msgstr "開始日期與時間"
 
@@ -1953,7 +1999,8 @@ msgstr "啟動應用程式時最小化"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "在儲存格文字開頭加入核取方塊、勾選或移除它(按一下核取方塊可勾選或取消勾選)"
+msgstr ""
+"在儲存格文字開頭加入核取方塊、勾選或移除它(按一下核取方塊可勾選或取消勾選)"
 
 msgid "Statusbar"
 msgstr "狀態列"
@@ -2060,9 +2107,6 @@ msgstr "此操作僅對單一選取的儲存格有效。"
 msgid "Toggle &Fullscreen View"
 msgstr "切換全螢幕檢視(&F)"
 
-msgid "&Scaled Presentation View"
-msgstr "縮放簡報檢視(&S)"
-
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "切換摺疊（Ctrl + 按兩下）"
 
@@ -2166,6 +2210,12 @@ msgstr "全部展開（Ctrl + Shift + 按兩下）"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "遞迴展開選取儲存格的網格"
+
+msgid "Unmerge Cells"
+msgstr "取消合併儲存格"
+
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "取消合併儲存格（CTRL+SHIFT+m）"
 
 msgid "Uses"
 msgstr "使用次數"
@@ -2284,6 +2334,9 @@ msgstr "沒有可調整大小的項目"
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr "僅套用所複製儲存格的色彩和樣式，保留原有文字"
 
+msgid "only works in a plain grid"
+msgstr "僅適用於一般網格"
+
 msgid "only works in cell text mode"
 msgstr "僅在儲存格文字模式下有效"
 
@@ -2295,3 +2348,6 @@ msgstr "逐步還原變更"
 
 msgid "scale:"
 msgstr "縮放："
+
+msgid "the selection is too large to merge"
+msgstr "選取的範圍太大，無法合併"

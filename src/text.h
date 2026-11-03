@@ -1762,6 +1762,11 @@ struct Text {
     void HomeEnd(Selection &s, bool home) const {
         auto i = 0;
         auto cw = cell->ColWidth();
+        if (cell->parent != nullptr) {
+            auto *g = cell->parent->grid.get();
+            auto pos = g->FindCell(cell);
+            cw = g->TextWidth(pos.x, pos.y);
+        }
         auto findwhere = home ? s.cursor : s.cursorend;
         auto spans = FormulaSpans();
         for (;;) {

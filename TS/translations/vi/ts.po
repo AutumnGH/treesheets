@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 15:43+0200\n"
+"POT-Creation-Date: 2026-11-03 21:34+0800\n"
 "PO-Revision-Date: 2026-09-17 12:38+0700\n"
 "Last-Translator: Vũ Anh Vũ\n"
 "Language-Team: Vietnamese\n"
@@ -145,6 +145,10 @@ msgstr "&Liên kết..."
 msgid "&Mark as"
 msgstr "Đánh dấu là (&M)"
 
+#, fuzzy
+msgid "&Merge Cells"
+msgstr "Di chuyển các ô lên trên"
+
 msgid "&New"
 msgstr "Mới (&N)"
 
@@ -222,6 +226,9 @@ msgstr "Lưu (&S)"
 
 msgid "&Save as..."
 msgstr "Lưu dưới dạng (&S)..."
+
+msgid "&Scaled Presentation View"
+msgstr "Chế độ trình diễn theo tỷ lệ (&S)"
 
 msgid "&Script reference"
 msgstr "Tham chiếu kịch bản (&S)"
@@ -468,6 +475,9 @@ msgstr "Chỉ có thể di chuyển ô này từ lưới Nx1 hoặc 1xN."
 
 msgid "Can only move this cell into a Nx1 or 1xN grid."
 msgstr "Chỉ có thể di chuyển ô này vào lưới Nx1 hoặc 1xN."
+
+msgid "Can only swap a cell that has text."
+msgstr ""
 
 msgid "Can paste or drop only exactly one file."
 msgstr "Chỉ có thể dán hoặc thả chính xác một tệp."
@@ -736,6 +746,10 @@ msgstr "Định dạng hình ảnh mặc định"
 msgid "Delete Before"
 msgstr "Xóa phần trước"
 
+#, fuzzy
+msgid "Delete Grid"
+msgstr "&Xóa phần sau"
+
 msgid "Delete Word After"
 msgstr "Xóa từ phía sau"
 
@@ -755,6 +769,10 @@ msgstr "Xóa toàn bộ từ sau con trỏ"
 
 msgid "Deletes the entire word before the cursor"
 msgstr "Xóa toàn bộ từ trước con trỏ"
+
+#, fuzzy
+msgid "Deletes the grids of the selected cells, keeping their text"
+msgstr "Gập lưới của (các) ô được chọn một cách đệ quy"
 
 msgid "Discard Changes"
 msgstr "Hủy bỏ thay đổi"
@@ -937,7 +955,10 @@ msgid ""
 "Export the grid of the current view as tab separated text, skipping sub-"
 "grids. Good for spreadsheets (use the Flatten operation first to include sub-"
 "grids)"
-msgstr "Xuất lưới của chế độ xem hiện tại dưới dạng văn bản phân tách bằng tab, bỏ qua các lưới con. Phù hợp cho bảng tính (sử dụng thao tác Làm phẳng trước để bao gồm các lưới con)"
+msgstr ""
+"Xuất lưới của chế độ xem hiện tại dưới dạng văn bản phân tách bằng tab, bỏ "
+"qua các lưới con. Phù hợp cho bảng tính (sử dụng thao tác Làm phẳng trước để "
+"bao gồm các lưới con)"
 
 msgid ""
 "Export to a HTML file alongside the original TreeSheets file when document "
@@ -1123,7 +1144,9 @@ msgstr ""
 
 msgid ""
 "Hold Shift when choosing it to change the selected cells, not the ones inside"
-msgstr "Giữ Shift khi chọn để chỉ thay đổi các ô đã chọn, không thay đổi các ô bên trong"
+msgstr ""
+"Giữ Shift khi chọn để chỉ thay đổi các ô đã chọn, không thay đổi các ô bên "
+"trong"
 
 msgid "Horizontal Layout with Bubble Style Rendering"
 msgstr "Bố cục ngang với hiển thị kiểu bong bóng"
@@ -1287,6 +1310,12 @@ msgstr ""
 
 msgid "Maximum number of launches reached."
 msgstr "Đã đạt số lần khởi chạy tối đa."
+
+msgid "Merge Cells (CTRL+m)"
+msgstr ""
+
+msgid "Merges the selected cells into one, keeping their content"
+msgstr ""
 
 msgid "Minimize on close"
 msgstr "Thu nhỏ khi đóng"
@@ -1692,6 +1721,18 @@ msgstr "Xóa kịch bản khỏi danh sách..."
 msgid "Remove template from list..."
 msgstr "Xóa mẫu khỏi danh sách..."
 
+msgid "Render LaTeX math written between \\( and \\) inline"
+msgstr ""
+
+msgid "Render LaTeX math written between dollar signs inline"
+msgstr ""
+
+msgid "Render TeX formulas in $...$"
+msgstr ""
+
+msgid "Render TeX formulas in \\(...\\)"
+msgstr ""
+
 msgid "Render document centered"
 msgstr "Hiển thị tài liệu căn giữa"
 
@@ -1884,7 +1925,9 @@ msgstr "Đặt màu cho nền tài liệu"
 msgid ""
 "Set the colors of the cursor, hover shadow, search results, operations and "
 "the custom color of the color dropdowns"
-msgstr "Đặt màu con trỏ, tô bóng khi di chuột, kết quả tìm kiếm, thao tác và màu tùy chỉnh của danh sách màu thả xuống"
+msgstr ""
+"Đặt màu con trỏ, tô bóng khi di chuột, kết quả tìm kiếm, thao tác và màu tùy "
+"chỉnh của danh sách màu thả xuống"
 
 msgid "Set the default column width for a new grid"
 msgstr "Đặt chiều rộng cột mặc định cho lưới mới"
@@ -1984,6 +2027,15 @@ msgstr "Sắp xếp tăng dần (&A)"
 msgid "Sort &Descending"
 msgstr "Sắp xếp giảm dần (&D)"
 
+msgid "Split cell at the cursor"
+msgstr ""
+
+msgid "Splits merged cells back into separate cells, keeping their content"
+msgstr ""
+
+msgid "Splits the text into two cells side by side in a subgrid"
+msgstr ""
+
 msgid "Start date and time"
 msgstr "Ngày và giờ bắt đầu"
 
@@ -2002,7 +2054,9 @@ msgstr "Khởi chạy ứng dụng ở trạng thái thu nhỏ"
 msgid ""
 "Starts the cell text with a checkbox, ticks it, or removes it (a click on it "
 "ticks or unticks it)"
-msgstr "Thêm ô đánh dấu vào đầu văn bản của ô, đánh dấu hoặc xóa nó (nhấp vào ô sẽ đánh dấu hoặc bỏ đánh dấu)"
+msgstr ""
+"Thêm ô đánh dấu vào đầu văn bản của ô, đánh dấu hoặc xóa nó (nhấp vào ô sẽ "
+"đánh dấu hoặc bỏ đánh dấu)"
 
 msgid "Statusbar"
 msgstr "Thanh trạng thái"
@@ -2111,9 +2165,6 @@ msgstr "Thao tác này chỉ hoạt động trên một ô được chọn duy n
 msgid "Toggle &Fullscreen View"
 msgstr "Bật/tắt chế độ toàn màn hình (&F)"
 
-msgid "&Scaled Presentation View"
-msgstr "Chế độ trình diễn theo tỷ lệ (&S)"
-
 msgid "Toggle Fold (CTRL+double-click)"
 msgstr "Bật/tắt gấp (Fold) (CTRL+nhấp đúp)"
 
@@ -2219,6 +2270,13 @@ msgstr "Mở tất cả (CTRL+SHIFT+nhấp đúp)"
 
 msgid "Unfolds the grid of the selected cell(s) recursively"
 msgstr "Mở lưới của (các) ô được chọn một cách đệ quy"
+
+msgid "Unmerge Cells"
+msgstr ""
+
+#, fuzzy
+msgid "Unmerge Cells (CTRL+SHIFT+m)"
+msgstr "Căn giữa (CTRL+SHIFT+e)"
 
 msgid "Uses"
 msgstr "Sử dụng"
@@ -2338,6 +2396,10 @@ msgstr "không có gì để thay đổi kích thước"
 msgid "only sets the colors and style of the copied cell, and keeps the text"
 msgstr "chỉ đặt màu sắc và định dạng của ô đã sao chép, và giữ nguyên văn bản"
 
+#, fuzzy
+msgid "only works in a plain grid"
+msgstr "chỉ hoạt động trong chế độ văn bản ô"
+
 msgid "only works in cell text mode"
 msgstr "chỉ hoạt động trong chế độ văn bản ô"
 
@@ -2350,3 +2412,7 @@ msgstr "đảo ngược các thay đổi, từng bước một"
 
 msgid "scale:"
 msgstr "tỷ lệ:"
+
+#, fuzzy
+msgid "the selection is too large to merge"
+msgstr "Mở rộng vùng chọn đến đầu"
