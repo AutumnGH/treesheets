@@ -119,6 +119,7 @@ extern "C" {
 
 #ifdef __WXMAC__
     #include <mach-o/dyld.h>
+    #include <wx/private/textinput.h>
     #include "macos.h"
 #endif
 

@@ -10,6 +10,11 @@ struct TSCanvas : public wxScrolledCanvas {
     wxTimer autoscrolltimer;
     // Only a drag started on the canvas autoscrolls, not one that resizes the window.
     bool pressedoncanvas {false};
+    #ifdef __WXOSX_COCOA__
+        // Claims the input method's composition so its editing keys stay with the IME, see
+        // TextInputClient in wxtools.h.
+        TextInputClient textinput {this};
+    #endif
 
     TSCanvas(TSFrame *fr, wxWindow *parent, const wxSize &size = wxDefaultSize)
         : wxScrolledCanvas(parent, wxID_ANY, wxDefaultPosition, size,
@@ -68,9 +73,17 @@ struct TSCanvas : public wxScrolledCanvas {
             }
             ie.Skip();
         });
+        #ifdef __WXOSX_COCOA__
+            wxAssociateTextInputClient(this, &textinput);
+        #endif
     }
 
-    ~TSCanvas() override { frame = nullptr; }
+    ~TSCanvas() override {
+        #ifdef __WXOSX_COCOA__
+            wxAssociateTextInputClient(this, nullptr);
+        #endif
+        frame = nullptr;
+    }
 
     void OnPaint(wxPaintEvent &event) {
         wxAutoBufferedPaintDC dc(this);

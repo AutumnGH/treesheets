@@ -716,6 +716,51 @@ static void GetFilesFromUser(wxArrayString &filenames, wxWindow *parent, const w
         }
         return false;
     }
+#elif defined(__WXOSX_COCOA__)
+    // TreeSheets draws its own text, so it only claims the input method's composition to stop the
+    // editing keys (Backspace, Enter, Escape, ...) from also reaching the cell while the IME is
+    // composing. Committed text still arrives as wxEVT_CHAR, as it does without a client.
+    struct TextInputClient final : wxTextInputClient {
+        wxWindow *window;
+        wxString marked;
+
+        explicit TextInputClient(wxWindow *w) : window(w) {}
+
+        bool IsTextInputEnabled() const override { return true; }
+        bool HasActiveComposition() const override { return !marked.empty(); }
+        void CancelComposition() override { marked.clear(); }
+
+        bool InsertText(const wxString &, long, long) override {
+            marked.clear();
+            return false;  // fall back to the normal wxEVT_CHAR path
+        }
+        bool SetMarkedText(const wxString &text, long, long, long, long) override {
+            marked = text;
+            return true;  // the IME owns the composition, not the cell
+        }
+        void UnmarkText() override { marked.clear(); }
+        bool HasMarkedText() const override { return !marked.empty(); }
+        bool GetMarkedTextRange(long *start, long *length) const override {
+            if (marked.empty()) { return false; }
+            *start = 0;
+            *length = static_cast<long>(marked.length());
+            return true;
+        }
+        bool GetSelectedTextRange(long *, long *) const override { return false; }
+        bool GetTextInRange(long, long, wxString *, long *, long *) const override { return false; }
+        bool GetTextRect(long, long, wxRect *rect, long *start, long *length) override {
+            *rect = window->GetInputMethodCursorRect();
+            *start = 0;
+            *length = 0;
+            return !rect->IsEmpty();
+        }
+        bool GetTextPosition(const wxPoint &, long *) override { return false; }
+    };
+
+    static bool IMEComposing(wxWindow *window) {
+        auto *client = wxFindTextInputClient(window);
+        return client && client->HasMarkedText();
+    }
 #else
     static bool IMEComposing(wxWindow *) { return false; }
 #endif
