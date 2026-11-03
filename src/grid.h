@@ -609,7 +609,7 @@ struct Grid {
                 // Show what the input method composes (e.g. pinyin) at the cell's text origin,
                 // where committing it will replace the content, even though the cell isn't being
                 // edited yet.
-                if (!IMEComposition(doc->canvas).IsEmpty()) {
+                if (const auto &composed = IMEComposition(doc->canvas); !composed.IsEmpty()) {
                     if (auto *c = sel.GetCell(); c != nullptr && !c->tiny) {
                         auto ixs = 0;
                         auto iys = 0;
@@ -618,9 +618,14 @@ struct Grid {
                         auto depth = c->Depth() - static_cast<int>(doc->drawpath.size());
                         doc->PickFont(dc, depth, c->text.relsize, c->text.stylebits);
                         h = doc->CharHeight(dc);
-                        x = c->GetX(doc) + 1 + ixs + g_margin_extra;
+                        auto w = 0;
+                        dc.GetTextExtent(composed, &w, nullptr);
+                        x = c->GetX(doc) + 2 + ixs + g_margin_extra;
+                        auto align = c->TextAlign();
+                        if (align != TEXTALIGN_LEFT) { x += c->text.AlignOffset(align, w, ixs); }
                         y = c->GetY(doc) + 1 + c->ycenteroff + g_margin_extra;
-                        x += c->text.DrawIMEComposition(doc, dc, x, y, h, sys->cursorcolor);
+                        Text::DrawIMEUnderline(dc, x, y, w, h, sys->cursorcolor);
+                        x += w;
                     }
                 }
                 HintIMELocation(doc, x, y, h, 0);

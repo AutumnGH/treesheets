@@ -727,7 +727,7 @@ static void GetFilesFromUser(wxArrayString &filenames, wxWindow *parent, const w
 
         explicit TextInputClient(wxWindow *w) : window(w) {}
 
-        // The composition is drawn by Text::DrawIMEComposition, so a change to it repaints.
+        // The composition is drawn as part of the cell text, so a change to it repaints.
         void Clear() {
             marked.clear();
             window->Refresh();

@@ -43,6 +43,8 @@ struct CursorPosCache {
     bool found {false};
     int localdx {0};  // horizontal offset from the cell's own origin
     int line {0};      // which wrapped line the cursor is on
+    int linestart {0};  // that line's start and length in the text
+    int linelen {0};
 };
 
 // Every field Cell::Reset() zeroes out. Document::Key()'s fast path (see

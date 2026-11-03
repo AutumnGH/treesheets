@@ -1074,7 +1074,15 @@ struct Text {
 
     template<typename DC>
     int Render(Document *doc, int bx, int by, int depth, DC &dc, int &leftoffset,
-               int maxcolwidth) const {
+               int maxcolwidth, bool nocompose = false) const {
+        // While the input method composes into this cell, draw the composition spliced into the
+        // text, so the layout reflows around it like committed text.
+        if (!nocompose) {
+            Text display;
+            if (IMEComposedText(doc, display) >= 0) {
+                return display.Render(doc, bx, by, depth, dc, leftoffset, maxcolwidth, true);
+            }
+        }
         auto ixs = 0;
         auto iys = 0;
         if (!cell->tiny) { treesheets::System::ImageSize(DisplayImage(), ixs, iys); }
@@ -1482,20 +1490,31 @@ struct Text {
         }
     }
 
-    // Draws the text the input method is composing (e.g. pinyin) at x, y, underlined, and
-    // returns its width. macOS leaves drawing marked text to the application.
-    template<typename DC>
-    int DrawIMEComposition(Document *doc, DC &dc, int x, int y, int h, uint color) const {
+    // The text to draw while the input method composes into this cell, with the composition
+    // spliced in as if it were committed: at the cursor, replacing the selection, or (when the
+    // cell isn't being edited) replacing the whole content. Fills `display` and returns where
+    // the composition starts in it, or -1 when this cell isn't composing.
+    int IMEComposedText(Document *doc, Text &display) const {
+        if (doc == nullptr || doc->selected.GetCell() != cell) { return -1; }
         const auto &composed = IMEComposition(doc->canvas);
-        if (composed.IsEmpty()) { return 0; }
-        dc.SetTextForeground(cell->textcolor != 0U ? wxColour(LightColor(cell->textcolor))
-                                                   : sys->rubberbandcolor);
-        auto w = 0;
-        dc.GetTextExtent(composed, &w, nullptr);
-        DrawText(dc, composed, x, y);
+        if (composed.IsEmpty()) { return -1; }
+        display = *this;
+        if (!doc->selected.TextEdit()) {
+            display.SetText(composed);  // committing it replaces the content
+            return 0;
+        }
+        auto from = min(doc->selected.cursor, doc->selected.cursorend);
+        auto to = max(doc->selected.cursor, doc->selected.cursorend);
+        if (to > from) { display.RemoveText(from, to - from); }
+        display.InsertText(from, composed);
+        return from;
+    }
+
+    // Underlines the composition, which Render() draws like committed text.
+    template<typename DC>
+    static void DrawIMEUnderline(DC &dc, int x, int y, int w, int h, uint color) {
         dc.SetPen(wxPen(wxColour(LightColor(color))));
         dc.DrawLine(x, y + h - 3, x + w, y + h - 3);
-        return w;
     }
 
     template<typename DC>
@@ -1505,17 +1524,25 @@ struct Text {
         auto iys = 0;
         if (!cell->tiny) { treesheets::System::ImageSize(DisplayImage(), ixs, iys); }
         if (ixs != 0) { ixs += 2; }
+        // While the input method composes, Render() draws the composition spliced into the text,
+        // so locate the cursor in that same text, after the composition.
+        Text display;
+        auto composedat = IMEComposedText(doc, display);
+        const auto &composed = IMEComposition(doc->canvas);
+        auto composing = composedat >= 0;
+        const Text &disp = composing ? display : *this;
+        auto cursor = composing ? composedat + static_cast<int>(composed.Len()) : s.cursor;
         auto depth = cell->Depth() - static_cast<int>(doc->drawpath.size());
         doc->PickFont(dc, depth, relsize, stylebits);
-        auto h = Rich() ? GetLineMetrics(doc, dc, depth).height : doc->CharHeight(dc);
+        auto h = disp.Rich() ? disp.GetLineMetrics(doc, dc, depth).height : doc->CharHeight(dc);
         auto align = cell->TextAlign();
         auto lineoffset = [&](int start, int len) {
             if (align == TEXTALIGN_LEFT) { return 0; }
-            return AlignOffset(align, RangeWidth(doc, dc, depth, start, len), ixs);
+            return AlignOffset(align, disp.RangeWidth(doc, dc, depth, start, len), ixs);
         };
         std::vector<BidiPiece> pieces;
 
-        if (s.cursor != s.cursorend) {
+        if (s.cursor != s.cursorend && !composing) {
             // A range selection changes far less often than the plain typing caret below, so it
             // isn't worth caching.
             ForEachRangeRect(doc, dc, s.cursor, s.cursorend, maxcolwidth,
@@ -1536,18 +1563,18 @@ struct Text {
         // and row height are recomputed fresh below regardless (cheap, and can shift
         // for reasons unrelated to this cell, e.g. a sibling growing).
         auto &cc = doc->cursorposcache;
-        auto leading = s.leadingcursor == s.cursor;
-        if (cc.cell != cell || cc.image != image || cc.cursor != s.cursor ||
+        auto leading = !composing && s.leadingcursor == s.cursor;
+        if (cc.cell != cell || cc.image != image || cc.cursor != cursor ||
             cc.leading != leading || cc.stylebits != stylebits || cc.relsize != relsize ||
             cc.maxcolwidth != maxcolwidth || cc.align != align ||
             (align != TEXTALIGN_LEFT && cc.alignwidth != cell->TextAlignWidth(ixs)) ||
-            cc.text != t || cc.runs != runs.v || cc.links != links.v) {
+            cc.text != disp.t || cc.runs != disp.runs.v || cc.links != disp.links.v) {
             cc.cell = cell;
             cc.image = image;
-            cc.text = t;
-            cc.runs = runs.v;
-            cc.links = links.v;
-            cc.cursor = s.cursor;
+            cc.text = disp.t;
+            cc.runs = disp.runs.v;
+            cc.links = disp.links.v;
+            cc.cursor = cursor;
             cc.leading = leading;
             cc.stylebits = stylebits;
             cc.relsize = relsize;
@@ -1555,25 +1582,27 @@ struct Text {
             cc.align = align;
             cc.alignwidth = cell->TextAlignWidth(ixs);
             cc.found = false;
-            auto bd = GetBidi();
-            auto spans = FormulaSpans();
+            auto bd = disp.GetBidi();
+            auto spans = disp.FormulaSpans();
             auto i = 0;
             for (auto l = 0;; l++) {
                 auto start = i;
-                auto ls = GetLine(i, maxcolwidth, spans);
+                auto ls = disp.GetLine(i, maxcolwidth, spans);
                 auto len = static_cast<int>(ls.Len());
                 auto end = start + len;
-                if (s.cursor >= start && s.cursor <= end) {
+                if (cursor >= start && cursor <= end) {
                     if (bd.Empty()) {
-                        auto x = RangeWidth(doc, dc, depth, start, s.cursor - start);
+                        auto x = disp.RangeWidth(doc, dc, depth, start, cursor - start);
                         cc.localdx = x + 1 + ixs + g_margin_extra + lineoffset(start, len);
                     } else {
-                        auto w = BidiLine(doc, dc, depth, bd, start, len, pieces);
+                        auto w = disp.BidiLine(doc, dc, depth, bd, start, len, pieces);
                         cc.localdx =
-                            BidiCursorX(doc, dc, depth, pieces, start, s.cursor, leading) + 1 +
+                            disp.BidiCursorX(doc, dc, depth, pieces, start, cursor, leading) + 1 +
                             ixs + g_margin_extra + AlignOffset(align, w, ixs);
                     }
                     cc.line = l;
+                    cc.linestart = start;
+                    cc.linelen = len;
                     cc.found = true;
                     break;
                 }
@@ -1583,7 +1612,14 @@ struct Text {
         if (cc.found) {
             int startx = cell->GetX(doc) + cc.localdx;
             int starty = cell->GetY(doc) + cc.line * h + 1 + cell->ycenteroff + g_margin_extra;
-            startx += DrawIMEComposition(doc, dc, startx, starty, h, color);
+            if (composing) {
+                auto w = 0;
+                dc.GetTextExtent(composed, &w, nullptr);
+                auto linex = cell->GetX(doc) + 1 + ixs + g_margin_extra +
+                             lineoffset(cc.linestart, cc.linelen);
+                auto x = max(startx - w, linex);
+                if (startx > x) { DrawIMEUnderline(dc, x, starty, startx - x, h, color); }
+            }
             DrawRectangle(dc, color, startx, starty, 2, h - 2);
             HintIMELocation(doc, startx, starty, h - 2, stylebits);
         }
